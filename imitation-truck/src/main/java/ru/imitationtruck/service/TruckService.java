@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.imitationtruck.entity.Truck;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,10 @@ public class TruckService extends Thread {
     private final List<Truck> truckList = new ArrayList<>();
 
 
-
     {
-        truckList.add(new Truck(1L,"Truck1",1.234,5.345));
-        truckList.add(new Truck(2L,"Truck2",2.234,6.345));
-        truckList.add(new Truck(3L,"Truck3",3.234,7.345));
+        truckList.add(new Truck(1L, "Truck1", 1.234, 5.345));
+        truckList.add(new Truck(2L, "Truck2", 2.234, 6.345));
+        truckList.add(new Truck(3L, "Truck3", 3.234, 7.345));
     }
 
 
@@ -32,8 +32,8 @@ public class TruckService extends Thread {
     }
 
     public void startMove() {
-       if(!this.isAlive())
-        this.start();
+        if (!this.isAlive())
+            this.start();
 
 
     }
@@ -43,19 +43,21 @@ public class TruckService extends Thread {
     }
 
     @Override
-    public void run(){
+    public void run() {
         try {
-        while(true){
-            for (Truck t : truckList) {
-                t.setX(t.getX()+0.001);
-                t.setY(t.getY()+0.002);
-                sendRabbitMessageService.send(t);
-            }
+            while (true) {
+                for (Truck t : truckList) {
+                    t.setX(t.getX() + 0.001);
+                    t.setY(t.getY() + 0.002);
+                    sendRabbitMessageService.send(t);
+                    System.out.println("вывод");
+                }
 
-                Thread.sleep(10);
+                Thread.sleep(5000);
             }
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             log.info("stop");
+
         }
     }
 }

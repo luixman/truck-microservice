@@ -10,6 +10,11 @@ public class ImitationTruckApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ImitationTruckApplication.class, args);
+
 	}
+
+
+
+
 
 }

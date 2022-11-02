@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   rabbitmq:
     host: localhost
@@ -5,6 +8,10 @@ spring:
     stream:
       username: guest
       password: guest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/truck_microservice
+    username: postgres
+    password: root
 
 
 rabbitmq:
@@ -12,5 +19,6 @@ rabbitmq:
   routingKey: myRoutingKey
   queue:
     name: truckCordsQueue
-    durable: false
+    durable: true
     exclusive: false
+
