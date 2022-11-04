@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.config.RabbitMqConfig;
 import ru.truckfollower.entity.Truck;
+import ru.truckfollower.model.TruckRabbitModel;
 
 import javax.sound.midi.Track;
 import java.io.ByteArrayInputStream;
@@ -19,19 +20,31 @@ import java.io.ObjectInputStream;
 @Service
 @Slf4j
 public class ReceiveRabbitMessageService {
+/*
 
     @Autowired
     private RabbitMqConfig config;
 
     @Autowired
     private RabbitTemplate template;
+*/
 
 
+    private final TruckService truckService;
+
+    @Autowired
+    public ReceiveRabbitMessageService(TruckService truckService) {
+        this.truckService = truckService;
+    }
 
 
     @RabbitListener(queues = "truckCordsQueue")
-    public void ReceiveMessage(Truck t) throws IOException, ClassNotFoundException {
+    public void ReceiveMessage(TruckRabbitModel t) throws IOException, ClassNotFoundException {
         System.out.println(t);
+        truckService.processTheMessage(t);
+
+
+
     }
 
 

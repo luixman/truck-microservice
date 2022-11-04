@@ -21,9 +21,9 @@ public class TruckService extends Thread {
 
 
     {
-        truckList.add(new Truck(1L, "Truck1", 1.234, 5.345));
-        truckList.add(new Truck(2L, "Truck2", 2.234, 6.345));
-        truckList.add(new Truck(3L, "Truck3", 3.234, 7.345));
+        truckList.add(new Truck(100001L, 1.234, 5.345));
+        truckList.add(new Truck(100002L, 2.234, 6.345));
+        truckList.add(new Truck(100003L, 3.234, 7.345));
     }
 
 

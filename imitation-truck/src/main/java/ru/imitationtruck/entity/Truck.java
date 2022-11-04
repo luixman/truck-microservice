@@ -12,8 +12,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class Truck implements Serializable {
 
-    private long truckId;
-    private String name;
+    private long uid;
     private double x;
     private double y;
 

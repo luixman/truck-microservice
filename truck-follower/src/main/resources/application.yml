@@ -12,6 +12,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/truck_microservice
     username: postgres
     password: root
+    driver-class-name: org.postgresql.Driver
 
 
 rabbitmq:
