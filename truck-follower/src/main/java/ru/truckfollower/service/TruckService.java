@@ -16,7 +16,7 @@ import java.util.*;
 public class TruckService {
 
 
-    private final CheckingTruckCoordinatesOnTheForbiddenZone checkingTruckCoordinates;
+    private final CheckingTruckCoordinatesService checkingTruckCoordinates;
     private final TruckRepo truckRepo;
 
     //мапа uniqId,truck
@@ -24,7 +24,7 @@ public class TruckService {
 
 
     @Autowired
-    public TruckService(CheckingTruckCoordinatesOnTheForbiddenZone checkingTruckCoordinates, TruckRepo truckRepo) {
+    public TruckService(CheckingTruckCoordinatesService checkingTruckCoordinates, TruckRepo truckRepo) {
         this.checkingTruckCoordinates = checkingTruckCoordinates;
         this.truckRepo = truckRepo;
     }
@@ -51,12 +51,12 @@ public class TruckService {
         if (Objects.isNull(t))
             log.info("Unknown truck");
         else {
-            checkingTruckCoordinates.check(truckRabbitModel, t.getCompany_id());
+            checkingTruckCoordinates.check(truckRabbitModel, t.getCompanyId());
         }
 
     }
 
-    public Optional<Truck> RabbitModelToEntity(TruckRabbitModel rabbitModel) {
+    public Optional<Truck> rabbitModelToEntity(TruckRabbitModel rabbitModel) {
 
         Optional<Truck> truck;
         truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUid()));

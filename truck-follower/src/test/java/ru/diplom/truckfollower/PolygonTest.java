@@ -3,7 +3,7 @@ package ru.diplom.truckfollower;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import ru.truckfollower.service.polygon.Point;
+import org.postgis.Point;
 import ru.truckfollower.service.polygon.Polygon;
 
 import java.util.ArrayList;

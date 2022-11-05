@@ -37,7 +37,7 @@ public class Truck  {
 
     @ManyToOne
     @JoinColumn(name = "company_id")
-    private Company company_id; //TODO many to one*/
+    private Company companyId; //TODO many to one*/
 
    // private long company_id;
 

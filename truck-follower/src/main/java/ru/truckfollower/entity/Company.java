@@ -22,19 +22,19 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    Long id;
+    private Long id;
 
     @Column(name = "full_name")
-    String fullName;
+    private String fullName;
 
     @Column(name = "short_name")
-    String shortName;
+    private String shortName;
 
     @Column(name = "inn")
-    String inn;
+    private String inn;
 
     @Column(name = "phone_number")
-    String phoneNumber;
+    private String phoneNumber;
     // TODO: 03.11.2022 '+7(495)775-55-30'  PATTERN
 
 

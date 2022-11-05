@@ -4,13 +4,17 @@ import com.sun.xml.bind.v2.TODO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Immutable;
+import org.postgis.Geometry;
+import org.postgis.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @ToString
+@Slf4j
 public class Polygon {
     @Getter
     List<Point> polygon = new ArrayList<>();
@@ -25,6 +29,18 @@ public class Polygon {
             throw new IllegalArgumentException("minimum list size: 3 elements");
         this.polygon = polygon;
         rangeCalculation();
+
+    }
+
+    public static Polygon geometryToPolygon(Geometry geometry) {
+        List<org.postgis.Point> list= new ArrayList<>(geometry.numPoints());
+
+        for (int i = 0; i < geometry.numPoints(); i++) {
+           list.add( geometry.getPoint(i));
+
+        }
+
+        return new Polygon(list);
 
     }
 
@@ -52,6 +68,7 @@ public class Polygon {
     }
 
     public boolean contains(Point p) {
+        //log.info(p.getX()+" "+p.getY()+" method: contains");
         if (p.getX() > min.getX() && p.getY() > min.getY() && p.getX() < max.getX() && p.getY() < max.getY())
             return deepContains(p);
 
@@ -59,6 +76,7 @@ public class Polygon {
     }
 
     private boolean deepContains(Point p) {
+        //log.warn(p.getX()+" "+p.getY()+" method: deepContains");
         boolean res = false;
         int j = polygon.size() - 1;
 
