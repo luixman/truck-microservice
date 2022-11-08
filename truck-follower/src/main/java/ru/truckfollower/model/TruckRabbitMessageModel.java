@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class TruckRabbitModel {
+public class TruckRabbitMessageModel {
     private long uid;
     private double x;
     private double y;

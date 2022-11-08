@@ -3,17 +3,17 @@ package ru.truckfollower.service;
 import lombok.extern.slf4j.Slf4j;
 import org.postgis.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Company;
 import ru.truckfollower.entity.ForbiddenZone;
-import ru.truckfollower.entity.Truck;
 import ru.truckfollower.model.ForbiddenZoneModel;
-import ru.truckfollower.model.TruckRabbitModel;
+import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.service.polygon.Polygon;
 
 import javax.annotation.PostConstruct;
-import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -37,6 +37,7 @@ public class CheckingTruckCoordinatesService {
     }
 
     @PostConstruct
+    @Scheduled(fixedDelayString = "${scheduler-time.service.checking-truck-coordinates-service}", timeUnit = TimeUnit.SECONDS)
     private void initialize() {
         Map<Long, List<ForbiddenZoneModel>> map = new HashMap<>();
 
@@ -58,11 +59,12 @@ public class CheckingTruckCoordinatesService {
 
         companyZones = map;
 
+        log.info("CheckingTruckCoordinatesService has ben initialized or updated. " + companyZones.getClass().getName() + "size: " + companyZones.size());
+
     }
 
 
-    public void check(TruckRabbitModel truckRabbitModel, Company company) {
-        // TODO: 05.11.2022 сделать таблицу и репозиторий для запретных зон. Хранить их где-нибудь, запретные зоны шедулить кажждый час или сделать контроллер по ручной синхронизации
+    public void check(TruckRabbitMessageModel truckRabbitMessageModel, Company company) {
         List<ForbiddenZoneModel> companyList = companyZones.get(company.getId());
 
         if (companyList == null) {
@@ -74,8 +76,9 @@ public class CheckingTruckCoordinatesService {
 
         for (ForbiddenZoneModel forbiddenZoneModel : companyList) {
             Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
-            boolean result = polygon.contains(new Point(truckRabbitModel.getX(), truckRabbitModel.getY()));
+            boolean result = polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
             if (result) {
+                // TODO: 08.11.2022 обработать тут аларм
                 //Optional<Truck> truck =truckService.rabbitModelToEntity(truckRabbitModel);
                 //log.warn(truckRabbitModel+"ЕБАТЬ ОНО В ЗАПРЕТНОЙ ЗОНЕ");
             }
@@ -83,6 +86,5 @@ public class CheckingTruckCoordinatesService {
 
         // TODO: 05.11.2022 логика проверки
 
-        //сделать forbidenZoneService, в котором также будет содержаться мапа с ключом company_id и value Лист из запретных зон
     }
 }

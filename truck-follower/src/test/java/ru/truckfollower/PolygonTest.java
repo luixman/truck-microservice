@@ -1,4 +1,4 @@
-package ru.diplom.truckfollower;
+package ru.truckfollower;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

@@ -23,3 +23,9 @@ rabbitmq:
     durable: true
     exclusive: false
 
+scheduler-time:
+  service:
+    truck-service: 300
+    checking-truck-coordinates-service: 300
+
+

@@ -15,9 +15,10 @@ import java.util.List;
 
 @ToString
 @Slf4j
+@Immutable
 public class Polygon {
     @Getter
-    List<Point> polygon = new ArrayList<>();
+    List<Point> polygon;
 
     //Расчет минимальных и максимальных диапазонов для оптимизации сравнения
     private Point min;
@@ -90,9 +91,6 @@ public class Polygon {
         return res;
     }
 
-    // TODO: 04.11.2022 добавить диапазоны, некий хешкод, DONE
-    //  который будет ускорять сравнивание, диапазон будет из 4 переменных, максимальный и минимальный х и у. DONE
-    //  Если точка в этом диапазоне, то применять более сложный алгоритм сравнения.
-    //  сделать класс Immutable
+
 
 }

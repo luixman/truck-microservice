@@ -1,15 +1,16 @@
 package ru.truckfollower.service;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Truck;
-import ru.truckfollower.model.TruckRabbitModel;
+import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.TruckRepo;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -30,6 +31,7 @@ public class TruckService {
     }
 
     @PostConstruct
+    @Scheduled(fixedDelayString = "${scheduler-time.service.truck-service}",timeUnit = TimeUnit.SECONDS)
     // TODO: 05.11.2022 добавить шедулер
     public void initialize() {
         Map<Long, Truck> map = new HashMap<>();
@@ -44,19 +46,19 @@ public class TruckService {
     }
 
 
-    public void processTheMessage(TruckRabbitModel truckRabbitModel) {
+    public void processTheMessage(TruckRabbitMessageModel truckRabbitMessageModel) {
 
-        Truck t = truckMap.get(truckRabbitModel.getUid());
+        Truck t = truckMap.get(truckRabbitMessageModel.getUid());
 
         if (Objects.isNull(t))
-            log.info("Unknown truck");
+            log.info("Unknown truck"); // TODO: 07.11.2022  
         else {
-            checkingTruckCoordinates.check(truckRabbitModel, t.getCompanyId());
+            checkingTruckCoordinates.check(truckRabbitMessageModel, t.getCompanyId());
         }
 
     }
 
-    public Optional<Truck> rabbitModelToEntity(TruckRabbitModel rabbitModel) {
+    public Optional<Truck> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
 
         Optional<Truck> truck;
         truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUid()));
