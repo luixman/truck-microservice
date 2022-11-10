@@ -48,20 +48,11 @@ public class StartController {
         List<Truck> list1 =truckRepo.findAll();
         System.out.println(list1);*/
 
-        List<ForbiddenZone> list = forbiddenZoneRepo.findAll();
-        System.out.println(list);
+       /* List<ForbiddenZone> list = forbiddenZoneRepo.findAll();
         String s = list.get(2).getPolygon();
         org.postgis.PGgeometry pGgeometry = new PGgeometry();
         pGgeometry.setValue(s);
-        Geometry g =pGgeometry.getGeometry();
-
-        for (int i = 0; i < g.numPoints(); i++) {
-            System.out.println(g.getPoint(i));
-        }
-
-
-
-
+        Geometry g =pGgeometry.getGeometry();*/
 
 
 

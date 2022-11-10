@@ -31,6 +31,7 @@ public class ReceiveRabbitMessageService {
 
     @RabbitListener(queues = "truckCordsQueue")
     public void ReceiveMessage(TruckRabbitMessageModel t) throws IOException, ClassNotFoundException {
+        System.out.println(t);
         truckService.processTheMessage(t);
 
 

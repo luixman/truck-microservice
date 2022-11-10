@@ -131,7 +131,7 @@ public class TruckService extends Thread {
                         truck.setY(point.y);
                         sendRabbitMessageService.send(truck);
                     }
-                    Thread.sleep(1);
+                    Thread.sleep(5000);
                 }
             }
 

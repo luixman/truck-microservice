@@ -8,3 +8,4 @@ CREATE TABLE zone_cords_table
             REFERENCES forbidden_zone (id)
             ON DELETE SET NULL
 )
+
