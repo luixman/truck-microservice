@@ -7,8 +7,10 @@ import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Data
 @NoArgsConstructor
@@ -22,7 +24,7 @@ public class Truck implements Serializable {
     private double y;
 
     @JsonSerialize(using = InstantSerializer.class)
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+   // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
    // @JsonFormat(pattern = "dd-MM-yyyy")
     private Instant instant;
 
@@ -30,7 +32,7 @@ public class Truck implements Serializable {
         this.uid = uid;
         this.x = x;
         this.y = y;
-        instant = Instant.now();
+        instant = Instant.now(Clock.system(ZoneId.of("Europe/Moscow")));
 
     }
 }

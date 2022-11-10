@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
+import ru.truckfollower.service.DefaultInstantDeserializer;
 
 import java.time.Instant;
 
@@ -19,8 +20,8 @@ public class TruckRabbitMessageModel {
     private long uid;
     private double x;
     private double y;
-    @JsonSerialize(using = InstantSerializer.class)
-    @JsonDeserialize(using = InstantDeserializer.class)
+    //@JsonSerialize(using = InstantSerializer.class)
+    @JsonDeserialize(using = DefaultInstantDeserializer.class)
     private Instant instant;
 
     public Instant getInstant() {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 
 import java.io.IOException;
+import java.time.ZoneId;
 
 @Service
 @Slf4j
@@ -31,7 +32,7 @@ public class ReceiveRabbitMessageService {
 
     @RabbitListener(queues = "truckCordsQueue")
     public void ReceiveMessage(TruckRabbitMessageModel t) throws IOException, ClassNotFoundException {
-        System.out.println(t);
+       // System.out.println(t.getInstant().atZone(ZoneId.of("Europe/Moscow")));
         truckService.processTheMessage(t);
 
 
