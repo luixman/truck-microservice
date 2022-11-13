@@ -13,6 +13,7 @@ import ru.truckfollower.repo.ForbiddenZoneRepo;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -49,4 +50,7 @@ public class ForbiddenZoneService {
                 .build();
     }
 
+    public Optional<ForbiddenZone> toEntity(ForbiddenZoneModel forbiddenZoneModel) {
+        return forbiddenZoneRepo.findById(forbiddenZoneModel.getId());
+    }
 }

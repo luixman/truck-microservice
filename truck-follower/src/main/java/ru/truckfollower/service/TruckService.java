@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Truck;
+import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.TruckRepo;
 
@@ -17,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class TruckService {
 
 
-    private final CheckingTruckCoordinatesService checkingTruckCoordinates;
     private final TruckRepo truckRepo;
 
     //мапа uniqId,truck
@@ -25,13 +25,12 @@ public class TruckService {
 
 
     @Autowired
-    public TruckService(CheckingTruckCoordinatesService checkingTruckCoordinates, TruckRepo truckRepo) {
-        this.checkingTruckCoordinates = checkingTruckCoordinates;
+    public TruckService( TruckRepo truckRepo) {
         this.truckRepo = truckRepo;
     }
 
     @PostConstruct
-    @Scheduled(fixedDelayString = "${scheduler-time.service.truck-service}",timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelayString = "${scheduler-time.service.truck-service}", timeUnit = TimeUnit.SECONDS)
     // TODO: 05.11.2022 добавить шедулер
     public void initialize() {
         Map<Long, Truck> map = new HashMap<>();
@@ -46,19 +45,26 @@ public class TruckService {
     }
 
 
-    public void processTheMessage(TruckRabbitMessageModel truckRabbitMessageModel) {
+/*    public void processTheMessage(TruckRabbitMessageModel truckRabbitMessageModel) {
 
         Truck t = truckMap.get(truckRabbitMessageModel.getUid());
 
         if (Objects.isNull(t))
-            log.info("Unknown truck"); // TODO: 07.11.2022  
+            log.info("Unknown truck"); // TODO: 07.11.2022
         else {
             checkingTruckCoordinates.check(truckRabbitMessageModel, t.getCompanyId());
         }
 
+    }*/
+
+    public Truck getTruckByUId(long uid) throws EntityNotFoundException {
+        Truck truck = truckMap.get(uid);
+        if(Objects.isNull(truck))
+            throw new EntityNotFoundException("Truck not found");
+        return truck;
     }
 
-    public Optional<Truck> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
+    public  Optional<Truck> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
 
         Optional<Truck> truck;
         truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUid()));
@@ -69,6 +75,7 @@ public class TruckService {
         return truckRepo.findAll();
     }
 
-
+   /* public Optional<Truck> getTruckById() {
+    }*/
 }
 

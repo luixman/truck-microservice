@@ -69,38 +69,7 @@ public class TruckService extends Thread {
         truckList.add(new Truck(100001L, 0, 0));
         truckList.add(new Truck(100002L, 0, 0));
         truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
 
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-
-        truckList.add(new Truck(100001L, 0, 0));
-        truckList.add(new Truck(100002L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-
-        truckList.add(new Truck(100001L, 0, 0));
-        truckList.add(new Truck(100002L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
-        truckList.add(new Truck(100003L, 0, 0));
     }
 
 
@@ -131,7 +100,7 @@ public class TruckService extends Thread {
                         truck.setY(point.y);
                         sendRabbitMessageService.send(truck);
                     }
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 }
             }
 

@@ -7,13 +7,16 @@ import org.postgresql.geometric.PGpolygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.Company;
 import ru.truckfollower.entity.ForbiddenZone;
 import ru.truckfollower.entity.Truck;
+import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.repo.CompanyRepo;
 import ru.truckfollower.repo.ForbiddenZoneRepo;
 import ru.truckfollower.repo.TruckRepo;
 
+import ru.truckfollower.service.AlarmService;
 import ru.truckfollower.service.ReceiveRabbitMessageService;
 import ru.truckfollower.service.polygon.Polygon;
 
@@ -36,7 +39,7 @@ public class StartController {
 */
 
     @Autowired
-    ForbiddenZoneRepo forbiddenZoneRepo;
+    AlarmService alarmService;
 
 
     @PostConstruct
@@ -53,6 +56,10 @@ public class StartController {
         org.postgis.PGgeometry pGgeometry = new PGgeometry();
         pGgeometry.setValue(s);
         Geometry g =pGgeometry.getGeometry();*/
+
+       // Alarm alarm =alarmRepo.findAll().get(0);
+
+
 
 
 
