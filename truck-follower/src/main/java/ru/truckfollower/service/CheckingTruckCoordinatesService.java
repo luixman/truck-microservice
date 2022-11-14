@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.Company;
 import ru.truckfollower.entity.ForbiddenZone;
-import ru.truckfollower.entity.Truck;
 import ru.truckfollower.model.ForbiddenZoneModel;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.service.polygon.Polygon;
@@ -46,11 +45,9 @@ public class CheckingTruckCoordinatesService {
     @Scheduled(fixedDelayString = "${scheduler-time.service.checking-truck-coordinates-service}", timeUnit = TimeUnit.SECONDS)
     private void initialize() {
         Map<Long, List<ForbiddenZoneModel>> map = new HashMap<>();
-
         companyService.getAll().forEach(x -> map.put(x.getId(), new ArrayList<>()));
 
         List<ForbiddenZone> forbiddenZoneList = forbiddenZoneService.getAll();
-
         List<ForbiddenZoneModel> forbiddenZoneModelList = new ArrayList<>();
 
         for (ForbiddenZone forbiddenZone : forbiddenZoneList) {
@@ -64,17 +61,14 @@ public class CheckingTruckCoordinatesService {
         }
 
         companyZones = map;
-
         log.info("CheckingTruckCoordinatesService has ben initialized or updated. " + companyZones.getClass().getName() + "size: " + companyZones.size());
-
     }
 
     public void check(TruckRabbitMessageModel truckRabbitMessageModel, Company company) {
 
-
         List<ForbiddenZoneModel> companyList = companyZones.get(company.getId());
 
-        if (alarmService.getTrucksInTheForbiddenZone().containsKey(truckRabbitMessageModel.getUid())) {
+        if (alarmService.getTrucksInTheForbiddenZone().containsKey(truckRabbitMessageModel.getUniqId())) {
             alarmService.handleAlarmTruck(truckRabbitMessageModel);
             return;
         }
@@ -84,22 +78,17 @@ public class CheckingTruckCoordinatesService {
             return;
         }
 
-
-        //log.info(truckRabbitMessageModel.getX()+" "+ truckRabbitMessageModel.getY()+" "+ truckRabbitMessageModel.getUid()+": "+ company.getFullName());
-
+        //log.info(truckRabbitMessageModel.getX()+" "+ truckRabbitMessageModel.getY()+" "+ truckRabbitMessageModel.getUniqId()+": "+ company.getFullName());
 
         for (ForbiddenZoneModel forbiddenZoneModel : companyList) {
             Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
             boolean result = polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
             if (result) {
                 // TODO: 13.11.2022 подумать че тут делать
-                //тут можно (нужно) не получать truck, а передавать uid
+                //тут можно (нужно) не получать truck, а передавать uniqId
                 Alarm alarm = alarmService.alarmCreate(truckRabbitMessageModel, forbiddenZoneModel);
                 break;
             }
-
         }
-
-
     }
 }

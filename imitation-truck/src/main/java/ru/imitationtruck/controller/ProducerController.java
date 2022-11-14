@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.imitationtruck.service.TruckService;
 
+import javax.annotation.PostConstruct;
+
 @RestController
 @RequestMapping("/order")
 public class ProducerController {
@@ -38,5 +40,10 @@ public class ProducerController {
         truckService.stopMove();
         return ResponseEntity.ok("stoped");
 
+    }
+
+    @PostConstruct
+    public void initialize(){
+        start();
     }
 }

@@ -28,6 +28,10 @@ scheduler-time:
     truck-service: 300
     checking-truck-coordinates-service: 300
 
+services:
+  alarm-service:
+    thread-pool-amount: 4
+
 logging:
   level:
-    root: error
+    root: info

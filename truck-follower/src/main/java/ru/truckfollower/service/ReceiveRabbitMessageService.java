@@ -3,58 +3,68 @@ package ru.truckfollower.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Truck;
 import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 
+
 import java.io.IOException;
-import java.time.ZoneId;
-import java.util.Optional;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
 public class ReceiveRabbitMessageService {
-/*
-
-    @Autowired
-    private RabbitMqConfig config;
-
-    @Autowired
-    private RabbitTemplate template;
-*/
-
 
     private final TruckService truckService;
     private final CheckingTruckCoordinatesService checkingTruckCoordinates;
-    private final AlarmService alarmService;
+    private final ExecutorService executorService;
+
 
     @Autowired
     public ReceiveRabbitMessageService(TruckService truckService, CheckingTruckCoordinatesService checkingTruckCoordinatesService,
-                                       AlarmService alarmService) {
+                                       @Value("${services.alarm-service.thread-pool-amount}") int threadPoolCount) {
         this.truckService = truckService;
         this.checkingTruckCoordinates = checkingTruckCoordinatesService;
-        this.alarmService = alarmService;
-    }
+        executorService = Executors.newFixedThreadPool(threadPoolCount);
 
+    }
 
     @RabbitListener(queues = "truckCordsQueue")
     public void ReceiveMessage(TruckRabbitMessageModel truckRabbitMessageModel) throws IOException, ClassNotFoundException {
-        // TODO: 13.11.2022 проверка на старость сообщения. 
-        Truck truck;
-        try {
-             truck = truckService.getTruckByUId(truckRabbitMessageModel.getUid());
-        } catch (EntityNotFoundException e) {
-            log.error("EntityNotFoundException: ",e);
-            return;
-        }
-            checkingTruckCoordinates.check(truckRabbitMessageModel, truck.getCompanyId());
 
+        Runnable task = () -> {
+            //если время сообщения различается больше чем на день, то у сообщения исправляется время и ставится флаг
+            if(isMessageWrongTime(truckRabbitMessageModel)){
+                truckRabbitMessageModel.setTimeWrong(true);
+                log.info("this message has the wrong time: "+truckRabbitMessageModel);
+                truckRabbitMessageModel.setInstant(Instant.now());
+            } else truckRabbitMessageModel.setTimeWrong(false);
+
+            Truck truck;
+            try {
+                truck = truckService.getTruckByUId(truckRabbitMessageModel.getUniqId());
+            } catch (EntityNotFoundException e) {
+                log.error("EntityNotFoundException: ", e);
+                return;
+            }
+            checkingTruckCoordinates.check(truckRabbitMessageModel, truck.getCompanyId());
+        };
+
+        executorService.submit(task);
     }
 
-    private boolean isMessageTimeOld(){
-        // TODO: 10.11.2022  
-        return false;
+    private boolean isMessageWrongTime(TruckRabbitMessageModel truckRabbitMessageModel) {
+
+        Instant now =Instant.now();
+        Instant messageTime =truckRabbitMessageModel.getInstant();
+        Duration duration =Duration.between(now,messageTime);
+
+        return Math.abs(duration.getSeconds()) > 86_400;
     }
 
 

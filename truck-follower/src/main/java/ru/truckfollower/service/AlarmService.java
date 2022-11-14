@@ -14,15 +14,9 @@ import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.service.polygon.Polygon;
 
 import javax.annotation.PostConstruct;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
@@ -34,7 +28,7 @@ public class AlarmService  {
     private final TruckService truckService;
 
 
-    //мапа uid,value(alarm)
+    //мапа uniqId,value(alarm)
     @Getter
     private final Map<Long, Alarm> trucksInTheForbiddenZone = new ConcurrentHashMap<>();
 
@@ -55,9 +49,6 @@ public class AlarmService  {
         List<Alarm> alarms = alarmRepo.findAllByZoneLeave(false);
 
         for (Alarm a : alarms) {
-            //truckService.getTruckById();
-
-
             trucksInTheForbiddenZone.put(a.getTruckId().getUniqId(), a);
         }
 
@@ -66,25 +57,27 @@ public class AlarmService  {
 
 
     public Alarm alarmCreate(TruckRabbitMessageModel truckRabbitMessageModel, ForbiddenZoneModel forbiddenZoneModel) {//methodname: startTracking
-        if (trucksInTheForbiddenZone.containsKey(truckRabbitMessageModel.getUid())) {
-            return trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUid());
+
+        if (trucksInTheForbiddenZone.containsKey(truckRabbitMessageModel.getUniqId())) {
+            return trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
         }
 
+        // TODO: 14.11.2022 исправить это
         ForbiddenZone forbiddenZone = forbiddenZoneService.toEntity(forbiddenZoneModel).get();
         Truck truck = truckService.rabbitModelToEntity(truckRabbitMessageModel).get();
 
         log.debug(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
 
-
         Alarm a = Alarm.builder()
                 .forbiddenZoneId(forbiddenZone)
                 .truckId(truck)
-                .time(Instant.now())
+                .messageTime(truckRabbitMessageModel.getInstant())
                 .zoneLeave(false)
                 .archive(false)
+                .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
                 .build();
         a = alarmRepo.save(a);
-        trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUid(), a);
+        trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
 
         return a;
     }
@@ -92,26 +85,17 @@ public class AlarmService  {
 
 
     public void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
-        Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUid());
+        Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
         ForbiddenZoneModel forbiddenZoneModel = forbiddenZoneService.toModel(a.getForbiddenZoneId());
 
         Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
         if (!polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))) {
-            a.setLeaveTime(Instant.now());
+            a.setLeaveTime(truckRabbitMessageModel.getInstant());
             a.setZoneLeave(true);
-            trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUid());
+            trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUniqId());
             alarmRepo.save(a);
 
             log.debug(a.getTruckId().getName() + " номер: " + a.getTruckId().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
-
-
-
         }
-
     }
-
-
-
-
-
 }

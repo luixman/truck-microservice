@@ -12,7 +12,6 @@ import java.util.List;
 public class CompanyService {
 
     private final CompanyRepo companyRepo;
-
     public CompanyService(CompanyRepo companyRepo) {
         this.companyRepo = companyRepo;
     }

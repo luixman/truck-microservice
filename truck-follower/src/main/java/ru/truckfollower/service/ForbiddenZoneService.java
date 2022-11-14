@@ -20,7 +20,6 @@ import java.util.Optional;
 public class ForbiddenZoneService {
 
     private final ForbiddenZoneRepo forbiddenZoneRepo;
-
     @Autowired
     public ForbiddenZoneService(ForbiddenZoneRepo forbiddenZoneRepo) {
         this.forbiddenZoneRepo = forbiddenZoneRepo;

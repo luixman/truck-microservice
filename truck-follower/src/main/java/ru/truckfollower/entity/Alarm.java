@@ -2,7 +2,6 @@ package ru.truckfollower.entity;
 
 
 import lombok.*;
-import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
 
@@ -26,17 +25,21 @@ public class Alarm {
 
 
 
-    @Column(name = "time")
-    private Instant time;
+    @Column(name = "message_time")
+    private Instant messageTime;
+
+    @Column(name = "leave_time")
+    private Instant leaveTime;
 
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
-    @Column(name = "leave_time")
-    private Instant leaveTime;
     @Column(name = "archive", columnDefinition = "boolean default false")
     private Boolean archive;
 
-    /*@Query("select  uid from alarm JOIN truck t on t.id = alarm.truck_id;")
+    @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
+    private Boolean messageTimeWrong;
+
+    /*@Query("select  uniqId from alarm JOIN truck t on t.id = alarm.truck_id;")
     private Long uniqId;*/
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne

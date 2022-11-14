@@ -45,18 +45,6 @@ public class TruckService {
     }
 
 
-/*    public void processTheMessage(TruckRabbitMessageModel truckRabbitMessageModel) {
-
-        Truck t = truckMap.get(truckRabbitMessageModel.getUid());
-
-        if (Objects.isNull(t))
-            log.info("Unknown truck"); // TODO: 07.11.2022
-        else {
-            checkingTruckCoordinates.check(truckRabbitMessageModel, t.getCompanyId());
-        }
-
-    }*/
-
     public Truck getTruckByUId(long uid) throws EntityNotFoundException {
         Truck truck = truckMap.get(uid);
         if(Objects.isNull(truck))
@@ -67,7 +55,7 @@ public class TruckService {
     public  Optional<Truck> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
 
         Optional<Truck> truck;
-        truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUid()));
+        truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUniqId()));
         return truck;
     }
 
@@ -75,7 +63,6 @@ public class TruckService {
         return truckRepo.findAll();
     }
 
-   /* public Optional<Truck> getTruckById() {
-    }*/
+
 }
 

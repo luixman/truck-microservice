@@ -9,6 +9,7 @@ import ru.imitationtruck.entity.Truck;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +53,10 @@ public class TruckService extends Thread {
         pointList.add(new Point(54.87311 ,37.19822 ));
 
         //запретная зона
-/*        pointList.add(new Point(54.87332,37.19674 ));
+        pointList.add(new Point(54.87332,37.19674 ));
         pointList.add(new Point(54.87385 ,37.1925 ));
         pointList.add(new Point(54.86959 ,37.17772 ));
-        pointList.add(new Point(54.86833 ,37.18346 ));*/
+        pointList.add(new Point(54.86833 ,37.18346 ));
 
         pointList.add(new Point(54.8662 ,37.19432 ));
         pointList.add(new Point(54.8661 ,37.19787 ));
@@ -94,13 +95,16 @@ public class TruckService extends Thread {
         try{
 
             while(true){
+
                 for (Point point: pointList) {
+                   /* Thread.sleep(500);*/
                     for (Truck truck : truckList) {
                         truck.setX(point.x);
                         truck.setY(point.y);
+                        truck.setInstant(Instant.MIN);
                         sendRabbitMessageService.send(truck);
                     }
-                   // Thread.sleep(5000);
+                    Thread.sleep(1000);
                 }
             }
 
