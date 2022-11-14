@@ -37,8 +37,8 @@ public class TruckService extends Thread {
 
 
         //запретная зона
-        pointList.add(new Point(54.89225 ,37.23313 ));
-        pointList.add(new Point(54.89152 ,37.23005 ));
+      /*  pointList.add(new Point(54.89225 ,37.23313 ));
+        pointList.add(new Point(54.89152 ,37.23005 ));*/
 
 
         pointList.add(new Point(54.89009 ,37.22704 ));
@@ -52,10 +52,10 @@ public class TruckService extends Thread {
         pointList.add(new Point(54.87311 ,37.19822 ));
 
         //запретная зона
-        pointList.add(new Point(54.87332,37.19674 ));
+/*        pointList.add(new Point(54.87332,37.19674 ));
         pointList.add(new Point(54.87385 ,37.1925 ));
         pointList.add(new Point(54.86959 ,37.17772 ));
-        pointList.add(new Point(54.86833 ,37.18346 ));
+        pointList.add(new Point(54.86833 ,37.18346 ));*/
 
         pointList.add(new Point(54.8662 ,37.19432 ));
         pointList.add(new Point(54.8661 ,37.19787 ));
@@ -100,11 +100,11 @@ public class TruckService extends Thread {
                         truck.setY(point.y);
                         sendRabbitMessageService.send(truck);
                     }
-                    Thread.sleep(3000);
+                   // Thread.sleep(5000);
                 }
             }
 
-        }catch (InterruptedException e){
+        }catch (Exception e){
             log.info("stop");
         }
     }

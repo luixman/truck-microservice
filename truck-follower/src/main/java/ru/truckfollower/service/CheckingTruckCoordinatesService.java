@@ -94,12 +94,8 @@ public class CheckingTruckCoordinatesService {
             if (result) {
                 // TODO: 13.11.2022 подумать че тут делать
                 //тут можно (нужно) не получать truck, а передавать uid
-                Truck truck = truckService.rabbitModelToEntity(truckRabbitMessageModel).get();
-                log.warn(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
-                Alarm alarm = alarmService.alarmCreate(truck, forbiddenZoneModel);
-
+                Alarm alarm = alarmService.alarmCreate(truckRabbitMessageModel, forbiddenZoneModel);
                 break;
-
             }
 
         }

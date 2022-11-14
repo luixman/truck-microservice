@@ -28,4 +28,6 @@ scheduler-time:
     truck-service: 300
     checking-truck-coordinates-service: 300
 
-
+logging:
+  level:
+    root: error
