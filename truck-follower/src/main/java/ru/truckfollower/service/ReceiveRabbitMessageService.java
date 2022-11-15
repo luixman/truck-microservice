@@ -53,6 +53,7 @@ public class ReceiveRabbitMessageService {
                 return;
             }
             checkingTruckCoordinates.check(truckRabbitMessageModel, truck.getCompanyId());
+
         };
 
         executorService.submit(task);

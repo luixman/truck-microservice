@@ -18,13 +18,7 @@ public class ProducerController {
     private TruckService truckService;
 
 
-    @GetMapping()
-    public ResponseEntity send(){
 
-       // truckService.getAll();
-
-        return ResponseEntity.ok(truckService.getAll());
-    }
 
     @GetMapping("/start")
     public ResponseEntity<String> start(){

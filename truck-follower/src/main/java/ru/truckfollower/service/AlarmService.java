@@ -52,11 +52,12 @@ public class AlarmService  {
             trucksInTheForbiddenZone.put(a.getTruckId().getUniqId(), a);
         }
 
+        log.info("Alarm service has ben initialized or updated"+trucksInTheForbiddenZone.getClass().getName()+" size:"+trucksInTheForbiddenZone.size());
     }
 
 
 
-    public Alarm alarmCreate(TruckRabbitMessageModel truckRabbitMessageModel, ForbiddenZoneModel forbiddenZoneModel) {//methodname: startTracking
+    public synchronized Alarm alarmCreate(TruckRabbitMessageModel truckRabbitMessageModel, ForbiddenZoneModel forbiddenZoneModel) {//methodname: startTracking
 
         if (trucksInTheForbiddenZone.containsKey(truckRabbitMessageModel.getUniqId())) {
             return trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
@@ -66,7 +67,7 @@ public class AlarmService  {
         ForbiddenZone forbiddenZone = forbiddenZoneService.toEntity(forbiddenZoneModel).get();
         Truck truck = truckService.rabbitModelToEntity(truckRabbitMessageModel).get();
 
-        log.debug(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
+        log.info(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
 
         Alarm a = Alarm.builder()
                 .forbiddenZoneId(forbiddenZone)
@@ -84,8 +85,11 @@ public class AlarmService  {
 
 
 
-    public void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
+    public synchronized void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
         Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
+
+        if(a==null)
+            return;
         ForbiddenZoneModel forbiddenZoneModel = forbiddenZoneService.toModel(a.getForbiddenZoneId());
 
         Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
@@ -95,7 +99,7 @@ public class AlarmService  {
             trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUniqId());
             alarmRepo.save(a);
 
-            log.debug(a.getTruckId().getName() + " номер: " + a.getTruckId().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
+            log.info(a.getTruckId().getName() + " номер: " + a.getTruckId().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
         }
     }
 }
