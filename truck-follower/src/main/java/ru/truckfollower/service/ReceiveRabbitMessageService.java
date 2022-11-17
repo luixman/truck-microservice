@@ -9,7 +9,6 @@ import ru.truckfollower.entity.Truck;
 import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;

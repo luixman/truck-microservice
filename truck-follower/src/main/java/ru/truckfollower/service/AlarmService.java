@@ -39,6 +39,7 @@ public class AlarmService  {
         this.truckService = truckService;
     }
 
+
     public List<Alarm> getAll() {
         return alarmRepo.findAll();
     }

@@ -1,7 +1,6 @@
 package ru.truckfollower.entity;
 
 import lombok.*;
-import org.postgresql.geometric.PGpolygon;
 
 import javax.persistence.*;
 

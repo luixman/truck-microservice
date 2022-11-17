@@ -1,14 +1,12 @@
 package ru.truckfollower.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.xml.bind.v2.TODO;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
 @AllArgsConstructor

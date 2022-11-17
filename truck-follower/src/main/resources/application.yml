@@ -9,10 +9,11 @@ spring:
       username: guest
       password: guest
   datasource:
-    url: jdbc:postgresql://localhost:5432/truck_microservice
-    username: postgres
-    password: root
-    driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/truck_microservice
+      username: postgres
+      password: root
+      driver-class-name: org.postgresql.Driver
+
 
 
 rabbitmq:
@@ -35,3 +36,8 @@ services:
 logging:
   level:
     root: info
+
+telegram:
+  bot:
+    token: ${TELEGRAM_TOKEN}
+    name: ${TELEGRAM_NAME}

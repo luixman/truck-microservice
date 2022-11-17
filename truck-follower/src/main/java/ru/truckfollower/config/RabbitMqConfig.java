@@ -1,7 +1,6 @@
 package ru.truckfollower.config;
 
 import org.springframework.amqp.core.*;
-
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -30,7 +29,7 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue queue(){
-      //  return new Queue(queue,durable,exclusive,true);
+        //  return new Queue(queue,durable,exclusive,true);
         return new Queue(queue);
     }
 

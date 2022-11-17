@@ -22,7 +22,10 @@ public class ProducerController {
 
     @GetMapping("/start")
     public ResponseEntity<String> start(){
-        truckService.startMove();
+        for (int i = 0; i < 50; i++) {
+
+            truckService.startMove();
+        }
 
         return ResponseEntity.ok("OK");
 
