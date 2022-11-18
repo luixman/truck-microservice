@@ -11,7 +11,6 @@ import java.time.Instant;
 @Getter
 @Setter
 @Builder
-@ToString
 
 @Entity
 public class Alarm {
@@ -38,6 +37,11 @@ public class Alarm {
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
+    @Transient
+    private Double x;
+    @Transient
+    private Double y;
+
     /*@Query("select  uniqId from alarm JOIN truck t on t.id = alarm.truck_id;")
     private Long uniqId;*/
     @JoinColumn(name = "forbidden_zone_id")
@@ -49,4 +53,19 @@ public class Alarm {
     @JoinColumn(name = "truck_id")
     @ManyToOne()
     private Truck truckId;
+
+
+    @Override
+    public String toString() {
+        return "Alarm{" +
+                "id=" + id +
+                ", messageTime=" + messageTime +
+                ", leaveTime=" + leaveTime +
+                ", zoneLeave=" + zoneLeave +
+                ", archive=" + archive +
+                ", messageTimeWrong=" + messageTimeWrong +
+                ", forbiddenZoneId=" + forbiddenZoneId +
+                ", truckId=" + truckId +
+                '}';
+    }
 }

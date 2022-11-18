@@ -1,6 +1,7 @@
 package ru.imitationtruck.service;
 
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.postgis.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class TruckService {
 
     Map<Truck, List<Point>> truckListMap = new LinkedHashMap<>();
 
-    ExecutorService executorService = Executors.newFixedThreadPool(4);
+    ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     @PostConstruct
     public void initialize() throws Exception {
@@ -52,31 +53,38 @@ public class TruckService {
         truckListMap.put(new Truck(100002L, 0, 0), list.get(1));
         truckListMap.put(new Truck(100003L, 0, 0), list.get(2));
 
+        startMove();
     }
 
 
 
 
+    @SneakyThrows
     public void startMove() {
-        List<Thread> threads = new ArrayList<>();
+
         for (Map.Entry<Truck, List<Point>> entry : truckListMap.entrySet()) {
             Runnable task = () -> {
+
                 Truck t = entry.getKey();
-                for (Point p : entry.getValue()) {
-                    t.setX(p.y);
-                    t.setY(p.x);
-                    t.setInstant(Instant.now());
-                    sendRabbitMessageService.send(t);
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
+                while(true) {
+                    for (Point p : entry.getValue()) {
+                        t.setX(p.y);
+                        t.setY(p.x);
+                        t.setInstant(Instant.now());
+                        sendRabbitMessageService.send(t);
+                        try {
+                            Thread.sleep(10);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
+
             };
             executorService.submit(task);
 
         }
+
 
     }
 

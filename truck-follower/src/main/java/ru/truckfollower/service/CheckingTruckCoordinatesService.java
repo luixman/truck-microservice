@@ -87,8 +87,7 @@ public class CheckingTruckCoordinatesService {
             Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
             boolean result = polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
             if (result) {
-                // TODO: 13.11.2022 подумать че тут делать
-                //тут можно (нужно) не получать truck, а передавать uniqId
+
                 Alarm alarm = alarmService.alarmCreate(truckRabbitMessageModel, forbiddenZoneModel);
                 break;
             }

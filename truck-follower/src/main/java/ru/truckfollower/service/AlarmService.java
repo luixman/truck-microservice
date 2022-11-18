@@ -12,6 +12,7 @@ import ru.truckfollower.model.ForbiddenZoneModel;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.service.polygon.Polygon;
+import ru.truckfollower.service.telegram.TelegramAlarmService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -27,17 +28,23 @@ public class AlarmService  {
     private final ForbiddenZoneService forbiddenZoneService;
     private final TruckService truckService;
 
+    private final TelegramAlarmService telegramAlarmService;
+
 
     //мапа uniqId,value(alarm)
     @Getter
     private final Map<Long, Alarm> trucksInTheForbiddenZone = new ConcurrentHashMap<>();
 
     @Autowired
-    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService) {
+    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService, TelegramAlarmService telegramAlarmService) {
         this.alarmRepo = alarmRepo;
         this.forbiddenZoneService = forbiddenZoneService;
         this.truckService = truckService;
+        this.telegramAlarmService = telegramAlarmService;
     }
+
+
+
 
 
     public List<Alarm> getAll() {
@@ -77,10 +84,13 @@ public class AlarmService  {
                 .zoneLeave(false)
                 .archive(false)
                 .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
+                .x(truckRabbitMessageModel.getX())
+                .y(truckRabbitMessageModel.getY())
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
 
+        telegramAlarmService.addAlarm(a);
         return a;
     }
 

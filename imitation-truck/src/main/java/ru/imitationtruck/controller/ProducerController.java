@@ -41,6 +41,6 @@ public class ProducerController {
 
     @PostConstruct
     public void initialize(){
-        start();
+
     }
 }
