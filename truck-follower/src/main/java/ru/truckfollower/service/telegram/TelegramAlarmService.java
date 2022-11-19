@@ -6,18 +6,11 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.truckfollower.entity.Alarm;
-import ru.truckfollower.entity.Truck;
 import ru.truckfollower.model.TelegramChatModel;
 
 import javax.annotation.PostConstruct;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
@@ -43,7 +36,7 @@ public class TelegramAlarmService extends Thread {
 
         try {
             while (true) {
-                Map<Long, TelegramChatModel> activatedCompanies = telegramBot.getActivatedCompanies2();
+                Map<Long, TelegramChatModel> activatedCompanies = telegramBot.getActivatedCompanies();
 
                 if (alarmsQueue.isEmpty()) {
                     Thread.sleep(5000);

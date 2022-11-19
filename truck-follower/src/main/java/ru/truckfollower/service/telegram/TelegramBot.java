@@ -9,19 +9,17 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.truckfollower.entity.Company;
+import ru.truckfollower.entity.TelegramConnection;
 import ru.truckfollower.model.TelegramChatModel;
-import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.service.CompanyService;
+import ru.truckfollower.service.KeyGeneratorService;
 
-import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,15 +29,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     //chatid,companyid
     @Getter
-    //   private final Map<Long,Set<Long>> activatedCompanies = new HashMap<>();
 
-    private final Map<Long, TelegramChatModel> activatedCompanies2 = new HashMap<>();
+
+    private final Map<Long, TelegramChatModel> activatedCompanies = new HashMap<>();
 
 
     //мапа chatid listKey
     private final String botToken;
     private final String botName;
-    private final AlarmRepo repo;
+
+    private final TelegramConnectionService telegramConnectionService;
+    private final KeyGeneratorService keyGeneratorService;
+
 
     @Autowired
     private CompanyService companyService;
@@ -47,10 +48,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public TelegramBot(@Value("${telegram.bot.token}") String botToken,
                        @Value("${telegram.bot.name}") String botName,
-                       AlarmRepo repo) {
+                       TelegramConnectionService telegramConnectionService,
+                       KeyGeneratorService keyGeneratorService) {
         this.botToken = botToken;
         this.botName = botName;
-        this.repo = repo;
+        this.telegramConnectionService = telegramConnectionService;
+        this.keyGeneratorService = keyGeneratorService;
 
     }
 
@@ -58,6 +61,27 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     @SneakyThrows
     public void onUpdateReceived(Update update) {
+
+        if (update.hasMyChatMember()) {
+            ChatMemberUpdated chatMemberUpdated = update.getMyChatMember();
+
+            if (chatMemberUpdated.getNewChatMember().getStatus().equals("kicked") && chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
+                //бота кикнули
+                telegramConnectionService.deleteByChatID(chatMemberUpdated.getChat().getId());
+            } else {
+
+                //создаем новый коннекшн
+                TelegramConnection telegramConnection = TelegramConnection.builder()
+                        .chatId(chatMemberUpdated.getChat().getId())
+                        .authKey(keyGeneratorService.getNewTelegramRandomKey())
+                        .firstAuthTime(Instant.now())
+                        .isAuthorized(false)
+                        .build();
+                telegramConnection = telegramConnectionService.save(telegramConnection);
+                sendNoAuthMessage(chatMemberUpdated.getChat().getId());
+            }
+        }
+
 
         //если это кнопка
         if (update.hasCallbackQuery()) {
@@ -69,19 +93,14 @@ public class TelegramBot extends TelegramLongPollingBot {
             handleCallBackQuery(update.getCallbackQuery());
         }
 
-
         //если это сообщение
-        if (update.hasMessage()) {
-
+        //если это команда
+        if (update.hasMessage() && update.getMessage().isCommand()) {
             if (!isChatVerified(update.getMessage().getChatId())) {
                 sendNoAuthMessage(update.getMessage().getChatId());
                 return;
             }
-            //если это команда
-            if (update.getMessage().isCommand()) {
-                handleCommandMessage(update.getMessage());
-            }
-
+            handleCommandMessage(update.getMessage());
         }
 
     }
@@ -98,9 +117,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             for (InlineKeyboardButton inlineKeyboardButton : list) {
                 if (Integer.parseInt(inlineKeyboardButton.getCallbackData()) == Integer.parseInt(callBack)) {
 
-                    if (!activatedCompanies2.containsKey(callbackQuery.getMessage().getChatId())) {
+                    if (!activatedCompanies.containsKey(callbackQuery.getMessage().getChatId())) {
 
-                        activatedCompanies2.put(callbackQuery.getMessage().getChatId(),
+                        activatedCompanies.put(callbackQuery.getMessage().getChatId(),
                                 TelegramChatModel.
                                         builder()
                                         .companyIds(ConcurrentHashMap.newKeySet())
@@ -108,7 +127,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                                         .build());
                     }
 
-                    TelegramChatModel telegramChatModel = activatedCompanies2.get(callbackQuery.getMessage().getChatId());
+                    TelegramChatModel telegramChatModel = activatedCompanies.get(callbackQuery.getMessage().getChatId());
 
                     if (inlineKeyboardButton.getText().contains("✅")) {
                         inlineKeyboardButton.setText(inlineKeyboardButton.getText().substring(1));
@@ -124,7 +143,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
 
 
-        activatedCompanies2.get(callbackQuery.getMessage().getChat().getId()).setInlineKeyboardMarkup(inlineKeyboardMarkup);
+        activatedCompanies.get(callbackQuery.getMessage().getChat().getId()).setInlineKeyboardMarkup(inlineKeyboardMarkup);
 
 
         execute(EditMessageReplyMarkup.builder()
@@ -133,13 +152,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                 .messageId(callbackQuery.getMessage().getMessageId()).build());
 
 
-        System.out.println(activatedCompanies2);
+        System.out.println(activatedCompanies);
     }
 
     @SneakyThrows
     private void sendNoAuthMessage(Long chatId) {
         execute(SendMessage.builder()
-                .text("Для того, что бы пользоваться функциями бота, введите секретный ключ")
+                .text("\"Для того, что бы пользоваться сервисом, введите одноразовый секретный ключ, в формате \\\"key:ваш_ключ\\\". \\nОн уже сгенерирован и находится у администратора\"")
                 .chatId(chatId)
                 .build());
 
@@ -151,7 +170,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (chatId == 315136544)
             return true;
 
-        return chatId == -839595209L;
+        return chatId == -1001856410390L;
     }
 
     private void handleCommandMessage(Message message) throws TelegramApiException {
@@ -182,7 +201,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void setCompanyCommand(Message message) {
 
 
-        TelegramChatModel telegramChatModel = activatedCompanies2.get(message.getChatId());
+        TelegramChatModel telegramChatModel = activatedCompanies.get(message.getChatId());
 
         InlineKeyboardMarkup inlineKeyboardMarkup = null;
         if (telegramChatModel != null && telegramChatModel.getInlineKeyboardMarkup() != null)
