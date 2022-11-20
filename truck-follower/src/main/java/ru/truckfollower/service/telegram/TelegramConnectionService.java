@@ -15,7 +15,6 @@ import java.util.Optional;
 public class TelegramConnectionService {
 
     private final TelegramConnectionRepo telegramConnectionRepo;
-
     @Autowired
     public TelegramConnectionService(TelegramConnectionRepo telegramConnectionRepo) {
         this.telegramConnectionRepo = telegramConnectionRepo;
@@ -23,6 +22,10 @@ public class TelegramConnectionService {
 
     public List<TelegramConnection> getAll() {
         return telegramConnectionRepo.findAll();
+    }
+
+    public List<TelegramConnection> getAllByAuthorized(){
+        return telegramConnectionRepo.getAllByAuthorized(true);
     }
 
     public void deleteByChatID(Long chatId) {
@@ -44,6 +47,11 @@ public class TelegramConnectionService {
     }
 
     public TelegramConnection save(TelegramConnection telegramConnection) {
+
+        if(telegramConnection.getActivatedCompanies()==null)
+            telegramConnection.setActivatedCompanies("{}");
+
+
         telegramConnectionRepo.save(telegramConnection);
         try {
             telegramConnection = getByChatId(telegramConnection.getChatId());

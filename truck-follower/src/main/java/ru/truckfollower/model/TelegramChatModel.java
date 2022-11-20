@@ -14,4 +14,11 @@ public class TelegramChatModel {
 
     private Set<Long> companyIds = ConcurrentHashMap.newKeySet();
     private InlineKeyboardMarkup inlineKeyboardMarkup;
+
+    @Override
+    public String toString() {
+        return "TelegramChatModel{" +
+                "companyIds=" + companyIds +
+                '}';
+    }
 }

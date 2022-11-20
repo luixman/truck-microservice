@@ -8,6 +8,7 @@ import ru.truckfollower.repo.TelegramConnectionRepo;
 import ru.truckfollower.service.AlarmService;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Controller
 @Slf4j
@@ -46,6 +47,9 @@ public class StartController {
        // telegramConnectionRepo.deleteAllByChatId(telegramConnection.getChatId());
         telegramConnectionRepo.delete(telegramConnection);
         System.out.println();*/
+
+       List<TelegramConnection> list = telegramConnectionRepo.findAll();
+        System.out.println(list);
 
 
     }

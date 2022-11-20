@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "telegram_conn")
@@ -27,9 +28,12 @@ public class TelegramConnection {
     String authKey;
 
     @Column(name = "authorized")
-    Boolean isAuthorized;
+    Boolean authorized;
 
     @Column(name = "first_auth_time")
     Instant firstAuthTime;
+
+    @Column(name = "activated_companies")
+    String activatedCompanies;
 
 }

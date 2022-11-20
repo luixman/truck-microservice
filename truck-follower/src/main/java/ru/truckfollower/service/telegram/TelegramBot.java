@@ -19,6 +19,7 @@ import ru.truckfollower.model.TelegramChatModel;
 import ru.truckfollower.service.CompanyService;
 import ru.truckfollower.service.KeyGeneratorService;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +30,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     //chatid,companyid
     @Getter
-
-
-    private final Map<Long, TelegramChatModel> activatedCompanies = new HashMap<>();
+    private final Map<Long, TelegramChatModel> activatedCompanies = new HashMap<>();//состояние кнопок
 
 
     //мапа chatid listKey
@@ -58,9 +57,20 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
+    @PostConstruct
+    public void init(){
+
+       List<TelegramConnection> authorizedConnections= telegramConnectionService.getAllByAuthorized();
+
+
+
+    }
+
     @Override
     @SneakyThrows
     public void onUpdateReceived(Update update) {
+
+        System.out.println(activatedCompanies);
 
         if (update.hasMyChatMember()) {
             ChatMemberUpdated chatMemberUpdated = update.getMyChatMember();
@@ -69,13 +79,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 //бота кикнули
                 telegramConnectionService.deleteByChatID(chatMemberUpdated.getChat().getId());
             } else {
-
                 //создаем новый коннекшн
                 TelegramConnection telegramConnection = TelegramConnection.builder()
                         .chatId(chatMemberUpdated.getChat().getId())
                         .authKey(keyGeneratorService.getNewTelegramRandomKey())
                         .firstAuthTime(Instant.now())
-                        .isAuthorized(false)
+                        .authorized(false)
                         .build();
                 telegramConnection = telegramConnectionService.save(telegramConnection);
                 sendNoAuthMessage(chatMemberUpdated.getChat().getId());
