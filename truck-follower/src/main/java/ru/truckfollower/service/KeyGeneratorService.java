@@ -33,9 +33,8 @@ public class KeyGeneratorService {
             return "!@#$%^&*()_+";
         }
     };
-
-
     CharacterRule splCharRule = new CharacterRule(specialChars);
+
 
 
     @PostConstruct
@@ -45,10 +44,7 @@ public class KeyGeneratorService {
         digitRule.setNumberOfCharacters(2);
         splCharRule.setNumberOfCharacters(2);
 
-
-        System.out.println(getNewTelegramRandomKey().length());
     }
-
 
     public String getNewTelegramRandomKey() {
         return generator.generatePassword(128, splCharRule, lowerCaseRule,

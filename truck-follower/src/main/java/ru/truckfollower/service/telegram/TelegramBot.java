@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -15,14 +16,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.truckfollower.entity.Company;
 import ru.truckfollower.entity.TelegramConnection;
-import ru.truckfollower.model.TelegramChatModel;
+import ru.truckfollower.model.TelegramConnectionModel;
 import ru.truckfollower.service.CompanyService;
 import ru.truckfollower.service.KeyGeneratorService;
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -30,10 +30,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     //chatid,companyid
     @Getter
-    private final Map<Long, TelegramChatModel> activatedCompanies = new HashMap<>();//состояние кнопок
+    private final Map<Long, TelegramConnectionModel> chatConnections = new HashMap<>();//состояние кнопок
 
-
-    //мапа chatid listKey
     private final String botToken;
     private final String botName;
 
@@ -43,7 +41,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private CompanyService companyService;
-
 
     public TelegramBot(@Value("${telegram.bot.token}") String botToken,
                        @Value("${telegram.bot.name}") String botName,
@@ -56,148 +53,162 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
 
-
     @PostConstruct
-    public void init(){
+    public void init() {
+        List<TelegramConnection> authorizedConnections = telegramConnectionService.getAll();
 
-       List<TelegramConnection> authorizedConnections= telegramConnectionService.getAllByAuthorized();
-
-
-
+        for (TelegramConnection connection : authorizedConnections) {
+            chatConnections.put(connection.getChatId(), telegramConnectionService.toModel(connection));
+        }
     }
 
     @Override
-    @SneakyThrows
     public void onUpdateReceived(Update update) {
-
-        System.out.println(activatedCompanies);
-
-        if (update.hasMyChatMember()) {
-            ChatMemberUpdated chatMemberUpdated = update.getMyChatMember();
-
-            if (chatMemberUpdated.getNewChatMember().getStatus().equals("kicked") && chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
-                //бота кикнули
-                telegramConnectionService.deleteByChatID(chatMemberUpdated.getChat().getId());
-            } else {
-                //создаем новый коннекшн
-                TelegramConnection telegramConnection = TelegramConnection.builder()
-                        .chatId(chatMemberUpdated.getChat().getId())
-                        .authKey(keyGeneratorService.getNewTelegramRandomKey())
-                        .firstAuthTime(Instant.now())
-                        .authorized(false)
-                        .build();
-                telegramConnection = telegramConnectionService.save(telegramConnection);
-                sendNoAuthMessage(chatMemberUpdated.getChat().getId());
-            }
-        }
-
-
         //если это кнопка
         if (update.hasCallbackQuery()) {
             if (!isChatVerified(update.getCallbackQuery().getMessage().getChatId())) {
                 sendNoAuthMessage(update.getCallbackQuery().getMessage().getChatId());
                 return;
             }
-
             handleCallBackQuery(update.getCallbackQuery());
         }
 
-        //если это сообщение
-        //если это команда
+        //если это сообщение, если это команда
         if (update.hasMessage() && update.getMessage().isCommand()) {
+            Message message = update.getMessage();
+
+            if (message.getText().startsWith("/key")) {
+                //валидация, можно вынести в метод
+                TelegramConnectionModel telegramConnectionModel = chatConnections.get(message.getChatId());
+                String key = message.getText().replace("/key ", "");
+                try {
+                    if (telegramConnectionModel.getAuthKey().equals(key)) {
+                        telegramConnectionModel.setAuthorized(true);
+                        telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
+                        execute(SendMessage.builder().chatId(message.getChatId()).text("Авторизация прошла успешно").build());
+                    } else {
+                        execute(SendMessage.builder().chatId(message.getChatId()).text("Неправильный ключ, попробуйте еще раз").build());
+                        return;
+                    }
+                }catch (TelegramApiException e){
+                    log.error(e.getMessage());
+                }
+            }
+
             if (!isChatVerified(update.getMessage().getChatId())) {
-                sendNoAuthMessage(update.getMessage().getChatId());
+                sendNoAuthMessage(message.getChatId());
                 return;
             }
-            handleCommandMessage(update.getMessage());
+            handleCommandMessage(message);
+        }
+
+
+        if (update.hasMyChatMember()) {
+            ChatMemberUpdated chatMemberUpdated = update.getMyChatMember();
+
+            if (chatMemberUpdated.getNewChatMember().getStatus().equals("kicked") && chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
+                //бота кикнули
+                chatConnections.remove(chatMemberUpdated.getChat().getId());
+                telegramConnectionService.deleteByChatID(chatMemberUpdated.getChat().getId());
+                return;
+            } else {
+                //создаем новый коннекшн
+                TelegramConnectionModel telegramConnectionModel = TelegramConnectionModel.builder()
+                        .chatId(chatMemberUpdated.getChat().getId())
+                        .authKey(keyGeneratorService.getNewTelegramRandomKey())
+                        .firstAuthTime(Instant.now())//фикс
+                        .authorized(false)
+                        .activatedCompanies(new HashSet<>())
+                        .build();
+                chatConnections.put(telegramConnectionModel.getChatId(), telegramConnectionModel);
+                telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
+                sendNoAuthMessage(chatMemberUpdated.getChat().getId());
+            }
         }
 
     }
 
 
-    @SneakyThrows
     private void handleCallBackQuery(CallbackQuery callbackQuery) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = callbackQuery.getMessage().getReplyMarkup();
-
-        List<Company> companyList = companyService.getAll();
         String callBack = callbackQuery.getData();
+        InlineKeyboardMarkup inlineKeyboardMarkup = getDefaultMarkup();
+        TelegramConnectionModel telegramConnectionModel = chatConnections.get(callbackQuery.getMessage().getChatId());
 
-        for (List<InlineKeyboardButton> list : inlineKeyboardMarkup.getKeyboard()) {
-            for (InlineKeyboardButton inlineKeyboardButton : list) {
-                if (Integer.parseInt(inlineKeyboardButton.getCallbackData()) == Integer.parseInt(callBack)) {
 
-                    if (!activatedCompanies.containsKey(callbackQuery.getMessage().getChatId())) {
+        if (telegramConnectionModel == null) {
+            // TODO: 21.11.2022
+            log.error("handleCallBackQuery method. telegramConnection model = null");
+            return;
+        }
 
-                        activatedCompanies.put(callbackQuery.getMessage().getChatId(),
-                                TelegramChatModel.
-                                        builder()
-                                        .companyIds(ConcurrentHashMap.newKeySet())
-                                        .inlineKeyboardMarkup(getDefaultMarkup())
-                                        .build());
-                    }
+        if (telegramConnectionModel.getActivatedCompanies().contains(Long.parseLong(callBack))) {
+            telegramConnectionModel.getActivatedCompanies().remove(Long.parseLong(callBack));
+        } else {
+            telegramConnectionModel.getActivatedCompanies().add(Long.parseLong(callBack));
+        }
 
-                    TelegramChatModel telegramChatModel = activatedCompanies.get(callbackQuery.getMessage().getChatId());
+        telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
 
-                    if (inlineKeyboardButton.getText().contains("✅")) {
-                        inlineKeyboardButton.setText(inlineKeyboardButton.getText().substring(1));
-                        telegramChatModel.getCompanyIds().remove(Long.parseLong(callBack));
-                        //currentChatMessage.remove();
-                    } else {
-                        inlineKeyboardButton.setText("✅" + inlineKeyboardButton.getText());
-                        telegramChatModel.getCompanyIds().add(Long.parseLong(callBack));
-
+        for (Long companyId : telegramConnectionModel.getActivatedCompanies()) {
+            List<List<InlineKeyboardButton>> buttons = inlineKeyboardMarkup.getKeyboard();
+            for (List<InlineKeyboardButton> buttonLine : buttons) {
+                for (InlineKeyboardButton button : buttonLine) {
+                    if (button.getCallbackData().equals(String.valueOf(companyId))) {
+                        button.setText("✅" + button.getText());
                     }
                 }
             }
         }
 
+        try {
+            execute(EditMessageReplyMarkup.builder()
+                    .chatId(callbackQuery.getMessage().getChatId())
+                    .replyMarkup(inlineKeyboardMarkup)
+                    .messageId(callbackQuery.getMessage().getMessageId()).build());
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
 
-        activatedCompanies.get(callbackQuery.getMessage().getChat().getId()).setInlineKeyboardMarkup(inlineKeyboardMarkup);
-
-
-        execute(EditMessageReplyMarkup.builder()
-                .chatId(callbackQuery.getMessage().getChatId())
-                .replyMarkup(inlineKeyboardMarkup)
-                .messageId(callbackQuery.getMessage().getMessageId()).build());
-
-
-        System.out.println(activatedCompanies);
     }
 
-    @SneakyThrows
+
     private void sendNoAuthMessage(Long chatId) {
-        execute(SendMessage.builder()
-                .text("\"Для того, что бы пользоваться сервисом, введите одноразовый секретный ключ, в формате \\\"key:ваш_ключ\\\". \\nОн уже сгенерирован и находится у администратора\"")
-                .chatId(chatId)
-                .build());
+        try {
+            execute(SendMessage.builder()
+                    .text("\"Для того, что бы пользоваться сервисом, введите одноразовый секретный ключ, в формате /key ваш_ключ. Он уже сгенерирован и находится у администратора\"")
+                    .chatId(chatId)
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
 
     }
 
     private boolean isChatVerified(Long chatId) {
         // TODO: 17.11.2022
+        if (!chatConnections.containsKey(chatId)) {
+            TelegramConnection telegramConnection = TelegramConnection.builder()
+                    .chatId(chatId)
+                    .authKey(keyGeneratorService.getNewTelegramRandomKey())
+                    .authorized(false)
+                    .activatedCompanies("")
+                    .build();
 
-        if (chatId == 315136544)
-            return true;
+            chatConnections.put(telegramConnection.getChatId(), telegramConnectionService.toModel(telegramConnection));
+            telegramConnectionService.save(telegramConnection);
+            return false;
+        } else {
+            return chatConnections.get(chatId).getAuthorized();
+        }
 
-        return chatId == -1001856410390L;
     }
 
-    private void handleCommandMessage(Message message) throws TelegramApiException {
+    private void handleCommandMessage(Message message) {
         Optional<MessageEntity> commandEntity = message.getEntities().stream().findFirst();
 
         if (commandEntity.isPresent()) {
 
             switch (commandEntity.get().getText()) {
-                case ("/start"):
-                    log.info("Telegram bot: new user: " + message.getFrom().getUserName() + ", chat: " + message.getChat().getTitle());
-                    if (!isChatVerified(message.getChatId()))
-                        sendNoAuthMessage(message.getChatId());
-                    else
-                        execute(SendMessage.builder().chatId(message.getChatId())
-                                .text("Бот активирован и готов к работе, введите /set_company чтобы выбрать отслеживаемые грузовики компаний")
-                                .replyToMessageId(message.getMessageId())
-                                .build());
-                    break;
                 case ("/set_company@truck_alert_bot"):
                 case ("/set_company"):
                     setCompanyCommand(message);
@@ -206,24 +217,36 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    @SneakyThrows
+
     private void setCompanyCommand(Message message) {
+        TelegramConnectionModel telegramConnectionModel = chatConnections.get(message.getChatId());
 
+        InlineKeyboardMarkup inlineKeyboardMarkup = getDefaultMarkup();
 
-        TelegramChatModel telegramChatModel = activatedCompanies.get(message.getChatId());
+        for (Long companyId : telegramConnectionModel.getActivatedCompanies()) {
+            List<List<InlineKeyboardButton>> buttons = inlineKeyboardMarkup.getKeyboard();
 
-        InlineKeyboardMarkup inlineKeyboardMarkup = null;
-        if (telegramChatModel != null && telegramChatModel.getInlineKeyboardMarkup() != null)
-            inlineKeyboardMarkup = telegramChatModel.getInlineKeyboardMarkup();
-        else
-            inlineKeyboardMarkup = getDefaultMarkup();
+            for (List<InlineKeyboardButton> buttonLine : buttons) {
+                for (InlineKeyboardButton button : buttonLine) {
+                    if (button.getCallbackData().equals(String.valueOf(companyId))) {
+                        button.setText("✅" + button.getText());
+                    }/*else if(button.getText().contains("✅")){
+                        button.setText(button.getText().substring(1));
+                    }*/
+                }
+            }
+        }
 
-        execute(SendMessage.builder()
-                .chatId(message.getChatId())
-                .text("Выберите компанию(-нии):")
-                .allowSendingWithoutReply(true)
-                .replyMarkup(inlineKeyboardMarkup)
-                .build());
+        try {
+            execute(SendMessage.builder()
+                    .chatId(message.getChatId())
+                    .text("Выберите компанию(-нии):")
+                    .allowSendingWithoutReply(true)
+                    .replyMarkup(inlineKeyboardMarkup)
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
+        }
     }
 
 
@@ -251,4 +274,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botToken;
     }
+
+
 }

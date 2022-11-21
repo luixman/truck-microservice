@@ -10,7 +10,9 @@ public interface TelegramConnectionRepo extends JpaRepository<TelegramConnection
 
 
 
-    Optional<TelegramConnection> getByChatId(Long chatID);
+    Optional<TelegramConnection> findFirstByChatId(Long chatID);
 
     List<TelegramConnection> getAllByAuthorized(Boolean authorized);
+
+
 }

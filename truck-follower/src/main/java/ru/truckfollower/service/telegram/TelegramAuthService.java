@@ -24,7 +24,6 @@ public class TelegramAuthService {
         return telegramConnection.getAuthorized();
 
 
-
     }
 
     public boolean authorizationAttempt(Long chatId, String authKey){

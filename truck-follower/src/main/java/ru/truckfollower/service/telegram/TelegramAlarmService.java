@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.truckfollower.entity.Alarm;
-import ru.truckfollower.model.TelegramChatModel;
+
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -32,11 +32,11 @@ public class TelegramAlarmService extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run() {/*
 
         try {
             while (true) {
-                Map<Long, TelegramChatModel> activatedCompanies = telegramBot.getActivatedCompanies();
+                Map<Long, TelegramChatModel> activatedCompanies = telegramBot.getChatConnections();
 
                 if (alarmsQueue.isEmpty()) {
                     Thread.sleep(5000);
@@ -98,7 +98,7 @@ public class TelegramAlarmService extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 
