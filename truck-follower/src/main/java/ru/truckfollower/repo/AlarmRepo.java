@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface AlarmRepo extends JpaRepository<Alarm,Long> {
 
-    //List<Alarm> findAllByTruckIdAndZoneLeave(Long truckId, Boolean zoneLeave);
-
     List<Alarm> findAllByZoneLeave(Boolean zoneLeave);
 
 

@@ -17,12 +17,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TruckService {
 
-
     private final TruckRepo truckRepo;
-
     //мапа uniqId,truck
     private Map<Long, Truck> truckMap;
-
 
     @Autowired
     public TruckService( TruckRepo truckRepo) {

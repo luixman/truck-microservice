@@ -35,7 +35,6 @@ public class Company {
     private String phoneNumber;
     // TODO: 03.11.2022 '+7(495)775-55-30'  PATTERN
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

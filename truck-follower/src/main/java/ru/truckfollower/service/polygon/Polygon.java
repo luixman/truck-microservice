@@ -19,7 +19,6 @@ import java.util.List;
 public class Polygon {
     @Getter
     List<Point> polygon;
-
     //Расчет минимальных и максимальных диапазонов для оптимизации сравнения
     private Point min;
     private Point max;

@@ -23,14 +23,12 @@ public class ReceiveRabbitMessageService {
     private final CheckingTruckCoordinatesService checkingTruckCoordinates;
     private final ExecutorService executorService;
 
-
     @Autowired
     public ReceiveRabbitMessageService(TruckService truckService, CheckingTruckCoordinatesService checkingTruckCoordinatesService,
                                        @Value("${services.alarm-service.thread-pool-amount}") int threadPoolCount) {
         this.truckService = truckService;
         this.checkingTruckCoordinates = checkingTruckCoordinatesService;
         executorService = Executors.newFixedThreadPool(threadPoolCount);
-
     }
 
     @RabbitListener(queues = "truckCordsQueue")

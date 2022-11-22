@@ -20,9 +20,6 @@ public class Alarm {
     @Column(name = "id", columnDefinition = "bigint default 0")
     private long id;
 
-
-
-
     @Column(name = "message_time")
     private Instant messageTime;
 
@@ -37,13 +34,14 @@ public class Alarm {
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
-    @Transient
-    private Double x;
+    // TODO: 22.11.2022 REFACTOR
     @Transient
     private Double y;
 
-    /*@Query("select  uniqId from alarm JOIN truck t on t.id = alarm.truck_id;")
-    private Long uniqId;*/
+    @Transient
+    private Double x;
+
+
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
     private ForbiddenZone forbiddenZoneId;

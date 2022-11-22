@@ -41,7 +41,4 @@ public class Truck  {
     @JoinColumn(name = "company_id")
     private Company companyId; //TODO many to one*/
 
-   // private long company_id;
-
-
 }

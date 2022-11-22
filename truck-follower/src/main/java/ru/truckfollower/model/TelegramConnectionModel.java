@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Data
 @Builder
 public class TelegramConnectionModel {
-
     Long id;
     Long chatId;
     String authKey;

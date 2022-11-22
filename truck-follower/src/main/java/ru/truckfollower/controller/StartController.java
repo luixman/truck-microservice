@@ -15,16 +15,8 @@ import java.util.List;
 public class StartController {
 
 
-    @Autowired
-    TelegramConnectionRepo telegramConnectionRepo;
-
-    @Autowired
-    AlarmService alarmService;
-
-
     @PostConstruct
     public void init() throws Exception {
-
 
 
     }

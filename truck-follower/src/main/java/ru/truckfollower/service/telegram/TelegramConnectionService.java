@@ -57,7 +57,6 @@ public class TelegramConnectionService {
         if(telegramConnection.getActivatedCompanies()==null)
             telegramConnection.setActivatedCompanies("{}");
 
-
         try {
             TelegramConnection bd =getByChatId(telegramConnection.getChatId());
             telegramConnection.setId(bd.getId());

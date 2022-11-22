@@ -26,22 +26,18 @@ public class CheckingTruckCoordinatesService {
 
     private final ForbiddenZoneService forbiddenZoneService;
     private final CompanyService companyService;
-
     private final AlarmService alarmService;
-
-    private final TruckService truckService;
 
 
     //мапа ид компании, валуе лист запретных зон
     private Map<Long, List<ForbiddenZoneModel>> companyZones;
 
     @Autowired
-    public CheckingTruckCoordinatesService(ForbiddenZoneService forbiddenZoneService, CompanyService companyService, AlarmService alarmService,
-                                           TruckService truckService) {
+    public CheckingTruckCoordinatesService(ForbiddenZoneService forbiddenZoneService, CompanyService companyService, AlarmService alarmService) {
         this.forbiddenZoneService = forbiddenZoneService;
         this.companyService = companyService;
         this.alarmService = alarmService;
-        this.truckService = truckService;
+
     }
 
     @PostConstruct
@@ -82,7 +78,6 @@ public class CheckingTruckCoordinatesService {
         }
 
         //log.info(truckRabbitMessageModel.getX()+" "+ truckRabbitMessageModel.getY()+" "+ truckRabbitMessageModel.getUniqId()+": "+ company.getFullName());
-
         for (ForbiddenZoneModel forbiddenZoneModel : companyList) {
             Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
             boolean result = polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));

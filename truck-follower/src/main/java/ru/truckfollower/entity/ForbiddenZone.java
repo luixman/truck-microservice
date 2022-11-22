@@ -32,7 +32,4 @@ public class ForbiddenZone {
     @Column(name="polygon")
     private String polygon;
 
-
-
-
 }

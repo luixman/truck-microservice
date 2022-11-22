@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+// TODO: 22.11.2022 REFACTOR
 @Service
 public class KeyGeneratorService {
 
@@ -34,8 +35,6 @@ public class KeyGeneratorService {
         }
     };
     CharacterRule splCharRule = new CharacterRule(specialChars);
-
-
 
     @PostConstruct
     public void init() {

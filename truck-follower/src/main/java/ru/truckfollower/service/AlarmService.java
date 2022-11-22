@@ -23,13 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 
 public class AlarmService  {
-
     private final AlarmRepo alarmRepo;
     private final ForbiddenZoneService forbiddenZoneService;
     private final TruckService truckService;
-
     private final TelegramAlarmService telegramAlarmService;
-
 
     //мапа uniqId,value(alarm)
     @Getter
@@ -43,10 +40,6 @@ public class AlarmService  {
         this.telegramAlarmService = telegramAlarmService;
     }
 
-
-
-
-
     public List<Alarm> getAll() {
         return alarmRepo.findAll();
     }
@@ -55,11 +48,9 @@ public class AlarmService  {
     public void initialize() {
 
         List<Alarm> alarms = alarmRepo.findAllByZoneLeave(false);
-
         for (Alarm a : alarms) {
             trucksInTheForbiddenZone.put(a.getTruckId().getUniqId(), a);
         }
-
         log.info("Alarm service has ben initialized or updated"+trucksInTheForbiddenZone.getClass().getName()+" size:"+trucksInTheForbiddenZone.size());
     }
 
