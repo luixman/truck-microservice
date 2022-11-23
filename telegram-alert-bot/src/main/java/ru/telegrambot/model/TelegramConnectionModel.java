@@ -1,4 +1,4 @@
-package ru.truckfollower.model;
+package ru.telegrambot.model;
 
 
 import lombok.Builder;
@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @Data
 @Builder

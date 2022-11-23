@@ -1,6 +1,5 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,6 +13,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 public class ForbiddenZone {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -29,7 +29,6 @@ public class ForbiddenZone {
     private Long companyId;
 
 
-    @JsonIgnore
     @Column(name="polygon")
     private String polygon;
 

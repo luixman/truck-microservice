@@ -1,4 +1,4 @@
-package ru.truckfollower.service;
+package ru.telegrambot.service;
 
 import org.passay.CharacterData;
 import org.passay.CharacterRule;

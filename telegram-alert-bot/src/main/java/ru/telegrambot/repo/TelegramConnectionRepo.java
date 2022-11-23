@@ -1,7 +1,8 @@
-package ru.truckfollower.repo;
+package ru.telegrambot.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.truckfollower.entity.TelegramConnection;
+import ru.telegrambot.entity.TelegramConnection;
+
 
 import java.util.List;
 import java.util.Optional;

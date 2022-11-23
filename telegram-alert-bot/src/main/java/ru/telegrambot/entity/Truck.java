@@ -1,4 +1,4 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 public class Truck  {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

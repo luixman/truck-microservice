@@ -1,10 +1,9 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name = "telegram_conn")

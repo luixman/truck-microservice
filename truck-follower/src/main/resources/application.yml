@@ -15,16 +15,14 @@ spring:
       driver-class-name: org.postgresql.Driver
 
 
-
 rabbitmq:
   receive:
     exchange: imitationTrucks
-    routingKey: myRoutingKey
+    routing-key: myRoutingKey
     queue:
       name: truckCordsQueue
       durable: true
       exclusive: false
-
   send:
     exchange: truck-follower
     routing-key: myRoutingKey
@@ -32,7 +30,6 @@ rabbitmq:
       name: sendAlarmQueue
       durable: true
       exclusive: false
-
 
 
 scheduler-time:
@@ -48,7 +45,3 @@ logging:
   level:
     root: info
 
-telegram:
-  bot:
-    token: ${TELEGRAM_TOKEN}
-    name: ${TELEGRAM_NAME}

@@ -1,4 +1,4 @@
-package ru.truckfollower.service.telegram;
+package ru.telegrambot.service.telegram;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,9 +6,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import ru.truckfollower.entity.TelegramConnection;
-import ru.truckfollower.exception.EntityNotFoundException;
-import ru.truckfollower.model.TelegramConnectionModel;
+import ru.telegrambot.entity.TelegramConnection;
+import ru.telegrambot.exception.EntityNotFoundException;
+
 
 @Service
 public class TelegramAuthService {

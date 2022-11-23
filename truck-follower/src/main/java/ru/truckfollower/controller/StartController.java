@@ -4,14 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import ru.truckfollower.entity.Alarm;
-import ru.truckfollower.entity.TelegramConnection;
 import ru.truckfollower.repo.AlarmRepo;
-import ru.truckfollower.repo.TelegramConnectionRepo;
-import ru.truckfollower.service.AlarmService;
 import ru.truckfollower.service.SendRabbitAlarmMessage;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 
 @Controller
 @Slf4j
@@ -28,7 +24,7 @@ public class StartController {
 
         Alarm a =alarmRepo.findById(1597136L).get();
 
-        System.out.println(a);
+       // System.out.println(a);
 
         sendRabbitAlarmMessage.send(a);
 

@@ -1,4 +1,4 @@
-package ru.truckfollower.service.telegram;
+package ru.telegrambot.service.telegram;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +12,15 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.truckfollower.entity.Alarm;
-import ru.truckfollower.entity.Company;
-import ru.truckfollower.entity.TelegramConnection;
-import ru.truckfollower.exception.EntityNotFoundException;
-import ru.truckfollower.model.TelegramConnectionModel;
-import ru.truckfollower.service.AlarmService;
-import ru.truckfollower.service.CompanyService;
-import ru.truckfollower.service.KeyGeneratorService;
+import ru.telegrambot.entity.Alarm;
+import ru.telegrambot.entity.Company;
+import ru.telegrambot.entity.TelegramConnection;
+import ru.telegrambot.exception.EntityNotFoundException;
+import ru.telegrambot.model.TelegramConnectionModel;
+import ru.telegrambot.service.AlarmService;
+import ru.telegrambot.service.CompanyService;
+import ru.telegrambot.service.KeyGeneratorService;
+
 
 import javax.annotation.PostConstruct;
 import java.time.Instant;

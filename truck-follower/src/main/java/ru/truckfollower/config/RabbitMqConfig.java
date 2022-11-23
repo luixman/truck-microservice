@@ -1,4 +1,4 @@
-package ru.truckfollower.config.rabbitMq;
+package ru.truckfollower.config;
 
 import lombok.Getter;
 import org.springframework.amqp.core.*;

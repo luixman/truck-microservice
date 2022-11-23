@@ -1,7 +1,6 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
@@ -17,6 +16,7 @@ import java.time.Instant;
 
 @Entity
 public class Alarm {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint default 0")
@@ -38,10 +38,13 @@ public class Alarm {
     private Boolean messageTimeWrong;
 
 
+
+
     //@JsonIgnore
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
     private ForbiddenZone forbiddenZoneId;
+
 
 
    // @JsonIgnore

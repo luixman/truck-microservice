@@ -1,12 +1,13 @@
-package ru.truckfollower.service.telegram;
+package ru.telegrambot.service.telegram;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.truckfollower.entity.TelegramConnection;
-import ru.truckfollower.exception.EntityNotFoundException;
-import ru.truckfollower.model.TelegramConnectionModel;
-import ru.truckfollower.repo.TelegramConnectionRepo;
+import ru.telegrambot.entity.TelegramConnection;
+import ru.telegrambot.exception.EntityNotFoundException;
+import ru.telegrambot.model.TelegramConnectionModel;
+import ru.telegrambot.repo.TelegramConnectionRepo;
+
 
 import java.util.HashSet;
 import java.util.List;

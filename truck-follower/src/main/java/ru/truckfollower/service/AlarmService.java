@@ -13,7 +13,6 @@ import ru.truckfollower.model.ForbiddenZoneModel;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.service.polygon.Polygon;
-import ru.truckfollower.service.telegram.TelegramAlarmService;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Transient;
