@@ -2,15 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>truck-microservice</artifactId>
+    <artifactId>truck-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>truck-microservice</name>
+    <name>truck-service</name>
     <packaging>pom</packaging>
-    <groupId>truck-microservice</groupId>
+    <groupId>truck-service</groupId>
 
     <modules>
         <module>imitation-truck</module>
         <module>truck-follower</module>
+        <module>telegram-alert-bot</module>
     </modules>
 
 

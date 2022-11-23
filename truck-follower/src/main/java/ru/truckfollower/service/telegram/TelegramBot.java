@@ -12,9 +12,12 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.Company;
 import ru.truckfollower.entity.TelegramConnection;
+import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.TelegramConnectionModel;
+import ru.truckfollower.service.AlarmService;
 import ru.truckfollower.service.CompanyService;
 import ru.truckfollower.service.KeyGeneratorService;
 
@@ -33,26 +36,26 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final String botToken;
     private final String botName;
+    private final int companiesOnThePage = 5; // TODO: 23.11.2022 вынести в конфиг
 
     private final TelegramConnectionService telegramConnectionService;
     private final KeyGeneratorService keyGeneratorService;
-
     private final TelegramAuthService telegramAuthService;
+    private final AlarmService alarmService;
 
 
     @Autowired
     private CompanyService companyService;
 
-    public TelegramBot(@Value("${telegram.bot.token}") String botToken,
-                       @Value("${telegram.bot.name}") String botName,
-                       TelegramConnectionService telegramConnectionService,
-                       KeyGeneratorService keyGeneratorService,
-                       TelegramAuthService telegramAuthService) {
+    public TelegramBot(@Value("${telegram.bot.token}") String botToken, @Value("${telegram.bot.name}") String botName,
+                       TelegramConnectionService telegramConnectionService, KeyGeneratorService keyGeneratorService,
+                       TelegramAuthService telegramAuthService, AlarmService alarmService) {
         this.botToken = botToken;
         this.botName = botName;
         this.telegramConnectionService = telegramConnectionService;
         this.keyGeneratorService = keyGeneratorService;
         this.telegramAuthService = telegramAuthService;
+        this.alarmService = alarmService;
 
     }
 
@@ -71,7 +74,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         //если это кнопка
         if (update.hasCallbackQuery()) {
-            if (telegramAuthService.hasChatAuth(update.getCallbackQuery().getMessage().getChatId())) {
+            if (!telegramAuthService.hasChatAuth(update.getCallbackQuery().getMessage().getChatId())) {
                 sendNoAuthMessage(update.getCallbackQuery().getMessage().getChatId());
                 return;
             }
@@ -107,7 +110,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 || chatMemberUpdated.getNewChatMember().getStatus().equals("left"))) {
             if (chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
                 //бота кикнули
-
                 telegramAuthService.authorizationDelete(chatMemberUpdated.getChat().getId());
                 updateChatConnections();
             }
@@ -133,35 +135,37 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         try {
             boolean result = telegramAuthService.authorizationAttempt(message.getChatId(), key);
-            if(telegramConnectionModel.getAuthorized()){
+            if (telegramConnectionModel.getAuthorized()) {
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Вы уже авторизованы, введите /set_company, что бы выбрать компании").build());
 
-            }
-            else if (result) {
+            } else if (result) {
                 updateChatConnections();
-                execute(SendMessage.builder().chatId(message.getChatId()).text("Авторизация прошла успешно").build());
+                execute(SendMessage.builder().chatId(message.getChatId()).text("Авторизация прошла успешно, введите /set_company, что бы выбрать компании").build());
             } else {
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Неправильный ключ, попробуйте еще раз").build());
             }
 
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
-}
+        }
     }
 
 
     private void handleCallBackQuery(CallbackQuery callbackQuery) {
         String callBack = callbackQuery.getData();
-       
+
         TelegramConnectionModel telegramConnectionModel = chatConnections.get(callbackQuery.getMessage().getChatId());
-        
+
         if (telegramConnectionModel == null) {
             // TODO: 21.11.2022
             log.error("handleCallBackQuery method. telegramConnection model = null");
             return;
         }
+        int page = 1;
+        if (callBack.contains("p")) {
+            telegramConnectionModel.setPage(Integer.parseInt(callBack.substring(1)));
 
-        if (telegramConnectionModel.getActivatedCompanies().contains(Long.parseLong(callBack))) {
+        } else if (telegramConnectionModel.getActivatedCompanies().contains(Long.parseLong(callBack))) {
             telegramConnectionModel.getActivatedCompanies().remove(Long.parseLong(callBack));
         } else {
             telegramConnectionModel.getActivatedCompanies().add(Long.parseLong(callBack));
@@ -199,18 +203,49 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         if (commandEntity.isPresent()) {
 
-            switch (commandEntity.get().getText()) {
-                case ("/set_company@truck_alert_bot"):
-                case ("/set_company"):
-                    setCompanyCommand(message);
-                    break;
-            }
+            String command = commandEntity.get().getText();
+            if (command.startsWith("/set_company"))
+                setCompanyCommand(message);
+            else if (command.startsWith("/get_alarm_"))
+                getAlarmCommand(message);
+
+        }
+    }
+
+    private void getAlarmCommand(Message message) {
+
+        long alarmId;
+        Alarm a;
+
+        try {
+            alarmId = Long.parseLong(message.getText().replace("/get_alarm_", "").replace("@truck_alert_bot", ""));
+            a = alarmService.getAlarmById(alarmId);
+        } catch (NumberFormatException e) {
+            log.error("Method getAlarmTruck parse error: " + message.getText());
+            return;
+            // TODO: 23.11.2022 можно сообщение об ошибке сюда добавить
+        } catch (EntityNotFoundException e) {
+            log.error(e.getMessage());
+            return;
+        }
+
+
+        try {
+            execute(SendMessage.builder()
+                    .chatId(message.getChatId())
+                    .text(a.toString())
+                    .allowSendingWithoutReply(true)
+                    .replyToMessageId(message.getMessageId())
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
     }
 
 
     private void setCompanyCommand(Message message) {
         TelegramConnectionModel telegramConnectionModel = chatConnections.get(message.getChatId());
+        telegramConnectionModel.setPage(1);
         InlineKeyboardMarkup inlineKeyboardMarkup = updateMarkup(telegramConnectionModel);
 
         try {
@@ -226,7 +261,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private InlineKeyboardMarkup updateMarkup(TelegramConnectionModel telegramConnectionModel) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = getDefaultMarkup();
+        InlineKeyboardMarkup inlineKeyboardMarkup = getDefaultMarkup(telegramConnectionModel.getPage());
         for (Long companyId : telegramConnectionModel.getActivatedCompanies()) {
             List<List<InlineKeyboardButton>> buttons = inlineKeyboardMarkup.getKeyboard();
 
@@ -242,20 +277,39 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
 
-    private InlineKeyboardMarkup getDefaultMarkup() {
+    private InlineKeyboardMarkup getDefaultMarkup(int page) {
         //Создаем кнопки
         List<List<InlineKeyboardButton>> defaultButtons = new ArrayList<>();
+        List<Company> companies = companyService.getAll();
+
+        if (page <= 0)
+            throw new IllegalArgumentException("page cannot be less than 1. value:" + page);
+
+
         defaultButtons.add(Collections.singletonList(
-                InlineKeyboardButton.builder().text("Все").callbackData(Long.toString(0)).build()
+                InlineKeyboardButton.builder().text("<Все>").callbackData(Long.toString(0)).build()
         ));
 
-        for (Company company : companyService.getAll()) {
+        int condition = Math.min(companies.size(), companiesOnThePage * page);
+
+        for (int i = (page * companiesOnThePage) - companiesOnThePage; i < condition; i++) {
             defaultButtons.add(Collections.singletonList(
-                    InlineKeyboardButton.builder().text(company.getShortName()).callbackData(Long.toString(company.getId())).build()
+                    InlineKeyboardButton.builder().text(companies.get(i).getShortName()).callbackData(Long.toString(companies.get(i).getId())).build()
             ));
         }
+        List<InlineKeyboardButton> prevNext = new ArrayList<>(companiesOnThePage);
+
+        if (page != 1) {
+            prevNext.add(InlineKeyboardButton.builder().text("⏪").callbackData("p" + (page - 1)).build());
+        }
+        if (condition % companiesOnThePage == 0 && page * companiesOnThePage != companies.size()) {
+            prevNext.add(InlineKeyboardButton.builder().text("⏩").callbackData("p" + (page + 1)).build());
+        }
+        defaultButtons.add(prevNext);
+
         return InlineKeyboardMarkup.builder().keyboard(defaultButtons).build();
     }
+
 
     @Override
     public String getBotUsername() {

@@ -31,7 +31,7 @@ public class ReceiveRabbitMessageService {
         executorService = Executors.newFixedThreadPool(threadPoolCount);
     }
 
-    @RabbitListener(queues = "truckCordsQueue")
+    @RabbitListener(queues = "${rabbitmq.receive.queue.name}")
     public void ReceiveMessage(TruckRabbitMessageModel truckRabbitMessageModel) throws IOException, ClassNotFoundException {
 
         Runnable task = () -> {

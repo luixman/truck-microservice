@@ -105,6 +105,7 @@ public class TelegramConnectionService {
                 .authorized(connection.getAuthorized())
                 .firstAuthTime(connection.getFirstAuthTime())
                 .activatedCompanies(activatedCompanies)
+                .page(1)
                 .build();
     }
 }

@@ -1,6 +1,9 @@
 package ru.truckfollower.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,35 +22,33 @@ public class Alarm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint default 0")
     private long id;
-
+    @JsonSerialize(using = InstantSerializer.class)
     @Column(name = "message_time")
     private Instant messageTime;
 
+    @JsonSerialize(using = InstantSerializer.class)
     @Column(name = "leave_time")
     private Instant leaveTime;
 
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
-    @Column(name = "archive", columnDefinition = "boolean default false")
-    private Boolean archive;
+    @Column(name = "tg_alert", columnDefinition = "boolean default false")
+    private Boolean TelegramAlert;
 
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
-    // TODO: 22.11.2022 REFACTOR
-    @Transient
-    private Double y;
-
-    @Transient
-    private Double x;
 
 
+
+    //@JsonIgnore
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
     private ForbiddenZone forbiddenZoneId;
 
 
 
+   // @JsonIgnore
     @JoinColumn(name = "truck_id")
     @ManyToOne()
     private Truck truckId;
@@ -60,10 +61,8 @@ public class Alarm {
                 ", messageTime=" + messageTime +
                 ", leaveTime=" + leaveTime +
                 ", zoneLeave=" + zoneLeave +
-                ", archive=" + archive +
+                ", isTelegramAlert=" + TelegramAlert +
                 ", messageTimeWrong=" + messageTimeWrong +
-                ", forbiddenZoneId=" + forbiddenZoneId +
-                ", truckId=" + truckId +
                 '}';
     }
 }

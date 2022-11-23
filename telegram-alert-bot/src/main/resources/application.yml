@@ -1,0 +1,37 @@
+server:
+  port: 8082
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    stream:
+      username: guest
+      password: guest
+  datasource:
+      url: jdbc:postgresql://localhost:5432/truck_microservice
+      username: postgres
+      password: root
+      driver-class-name: org.postgresql.Driver
+
+
+
+rabbitmq:
+  exchange: imitationTrucks
+  routingKey: myRoutingKey
+  queue:
+    name: truckCordsQueue
+    durable: true
+    exclusive: false
+
+
+
+
+logging:
+  level:
+    root: info
+
+telegram:
+  bot:
+    token: ${TELEGRAM_TOKEN}
+    name: ${TELEGRAM_NAME}

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Map;
+
 @Configuration
 public class RabbitMqConfig {
 
@@ -19,6 +21,10 @@ public class RabbitMqConfig {
     public final String routingKey;
     public final boolean durable;
     public final boolean exclusive;
+
+
+
+
 
 
     public RabbitMqConfig(@Value("${rabbitmq.queue.name}") String queue, @Value("${rabbitmq.exchange}") String exchange, @Value("${rabbitmq.routingKey}") String routingKey,

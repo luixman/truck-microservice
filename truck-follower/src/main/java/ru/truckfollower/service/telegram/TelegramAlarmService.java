@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.model.TelegramConnectionModel;
+import ru.truckfollower.service.AlarmService;
 
 
 import javax.annotation.PostConstruct;
@@ -24,17 +25,18 @@ public class TelegramAlarmService extends Thread {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyyг. HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
-    private final ConcurrentLinkedQueue<Alarm> alarmsQueue = new ConcurrentLinkedQueue<>();
+    // private final ConcurrentLinkedQueue<Alarm> alarmsQueue = new ConcurrentLinkedQueue<>();
 
     private final TelegramBot telegramBot;
-
     private final TelegramAuthService telegramAuthService;
+    private final AlarmService alarmService;
 
 
     @Autowired
-    public TelegramAlarmService(TelegramBot telegramBot, TelegramAuthService telegramAuthService) {
+    public TelegramAlarmService(TelegramBot telegramBot, TelegramAuthService telegramAuthService, AlarmService alarmService) {
         this.telegramBot = telegramBot;
         this.telegramAuthService = telegramAuthService;
+        this.alarmService = alarmService;
     }
 
     @PostConstruct
@@ -43,11 +45,10 @@ public class TelegramAlarmService extends Thread {
     }
 
     @Override
-    public void run() {
+    public void run(){} /*{
 
         try {
             while (true) {
-
 
                 // TODO: 22.11.2022 реализовать группированное сообщение
 
@@ -95,10 +96,7 @@ public class TelegramAlarmService extends Thread {
             log.error(e.getMessage());
             run();
         }
-    }
+    }*/
 
 
-    public void addAlarm(Alarm alarm) {
-        alarmsQueue.add(alarm);
-    }
 }

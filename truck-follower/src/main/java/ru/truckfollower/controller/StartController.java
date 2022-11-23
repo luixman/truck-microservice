@@ -3,9 +3,12 @@ package ru.truckfollower.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.TelegramConnection;
+import ru.truckfollower.repo.AlarmRepo;
 import ru.truckfollower.repo.TelegramConnectionRepo;
 import ru.truckfollower.service.AlarmService;
+import ru.truckfollower.service.SendRabbitAlarmMessage;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -14,10 +17,20 @@ import java.util.List;
 @Slf4j
 public class StartController {
 
+    @Autowired
+    AlarmRepo alarmRepo;
+
+    @Autowired
+    SendRabbitAlarmMessage sendRabbitAlarmMessage;
 
     @PostConstruct
     public void init() throws Exception {
 
+        Alarm a =alarmRepo.findById(1597136L).get();
+
+        System.out.println(a);
+
+        sendRabbitAlarmMessage.send(a);
 
     }
 

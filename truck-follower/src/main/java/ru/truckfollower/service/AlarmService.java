@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.ForbiddenZone;
 import ru.truckfollower.entity.Truck;
+import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.ForbiddenZoneModel;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.AlarmRepo;
@@ -15,8 +16,10 @@ import ru.truckfollower.service.polygon.Polygon;
 import ru.truckfollower.service.telegram.TelegramAlarmService;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.Transient;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -26,18 +29,18 @@ public class AlarmService  {
     private final AlarmRepo alarmRepo;
     private final ForbiddenZoneService forbiddenZoneService;
     private final TruckService truckService;
-    private final TelegramAlarmService telegramAlarmService;
+  //  private final TelegramAlarmService telegramAlarmService;
 
     //мапа uniqId,value(alarm)
     @Getter
     private final Map<Long, Alarm> trucksInTheForbiddenZone = new ConcurrentHashMap<>();
 
     @Autowired
-    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService, TelegramAlarmService telegramAlarmService) {
+    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService/*, TelegramAlarmService telegramAlarmService*/) {
         this.alarmRepo = alarmRepo;
         this.forbiddenZoneService = forbiddenZoneService;
         this.truckService = truckService;
-        this.telegramAlarmService = telegramAlarmService;
+       // this.telegramAlarmService = telegramAlarmService;
     }
 
     public List<Alarm> getAll() {
@@ -56,6 +59,7 @@ public class AlarmService  {
 
 
 
+    @Transient
     public synchronized Alarm alarmCreate(TruckRabbitMessageModel truckRabbitMessageModel, ForbiddenZoneModel forbiddenZoneModel) {//methodname: startTracking
 
         if (trucksInTheForbiddenZone.containsKey(truckRabbitMessageModel.getUniqId())) {
@@ -73,20 +77,19 @@ public class AlarmService  {
                 .truckId(truck)
                 .messageTime(truckRabbitMessageModel.getInstant())
                 .zoneLeave(false)
-                .archive(false)
+                .TelegramAlert(false)
                 .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
-                .x(truckRabbitMessageModel.getX())
-                .y(truckRabbitMessageModel.getY())
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
 
-        telegramAlarmService.addAlarm(a);
+       // telegramAlarmService.addAlarm(a);
         return a;
     }
 
 
 
+    @Transient
     public synchronized void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
         Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
 
@@ -103,5 +106,13 @@ public class AlarmService  {
 
             log.info(a.getTruckId().getName() + " номер: " + a.getTruckId().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
         }
+    }
+
+    public Alarm getAlarmById(Long id) throws EntityNotFoundException {
+
+        Optional<Alarm> a = alarmRepo.findById(id);
+        if(a.isEmpty())
+            throw new EntityNotFoundException("alarm not found by id= "+id);
+        return a.get();
     }
 }

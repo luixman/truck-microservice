@@ -17,4 +17,5 @@ public class TelegramConnectionModel {
     Boolean authorized;
     Instant firstAuthTime;
     Set<Long> activatedCompanies;
+    Integer page;
 }

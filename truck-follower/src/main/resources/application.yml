@@ -17,12 +17,23 @@ spring:
 
 
 rabbitmq:
-  exchange: imitationTrucks
-  routingKey: myRoutingKey
-  queue:
-    name: truckCordsQueue
-    durable: true
-    exclusive: false
+  receive:
+    exchange: imitationTrucks
+    routingKey: myRoutingKey
+    queue:
+      name: truckCordsQueue
+      durable: true
+      exclusive: false
+
+  send:
+    exchange: truck-follower
+    routing-key: myRoutingKey
+    queue:
+      name: sendAlarmQueue
+      durable: true
+      exclusive: false
+
+
 
 scheduler-time:
   service:
