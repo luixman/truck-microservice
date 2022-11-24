@@ -86,8 +86,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().isCommand()) {
             Message message = update.getMessage();
 
-            if (message.getText().startsWith("/key"))
+            if (message.getText().startsWith("/key")) {
                 handleAuthMessage(message);
+            }
 
             if (!telegramAuthService.hasChatAuth(message.getChatId())) {
                 sendNoAuthMessage(message.getChatId());
@@ -111,6 +112,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 || chatMemberUpdated.getNewChatMember().getStatus().equals("left"))) {
             if (chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
                 //бота кикнули
+                log.info("chat:" + chatMemberUpdated.getChat().getUserName() + " " + chatMemberUpdated.getChat().getId() + ". Left the chat");
                 telegramAuthService.authorizationDelete(chatMemberUpdated.getChat().getId());
                 updateChatConnections();
             }
@@ -123,6 +125,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     .authorized(false)
                     .activatedCompanies(new HashSet<>())
                     .build();
+            log.info("chat:" + chatMemberUpdated.getChat().getUserName() + " " + chatMemberUpdated.getChat().getId() + ". Join the chat");
             telegramAuthService.authorizationAttempt(chatMemberUpdated.getChat().getId(), "");
             telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
             updateChatConnections();
@@ -131,6 +134,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void handleAuthMessage(Message message) {
         //валидация, можно вынести в метод
+
+        String messageLog = "Chat: " + message.getChat().getId() + ". Authorization attempt";
+
+
         TelegramConnectionModel telegramConnectionModel = chatConnections.get(message.getChatId());
         String key = message.getText().replace("/key ", "");
 
@@ -138,13 +145,17 @@ public class TelegramBot extends TelegramLongPollingBot {
             boolean result = telegramAuthService.authorizationAttempt(message.getChatId(), key);
             if (telegramConnectionModel.getAuthorized()) {
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Вы уже авторизованы, введите /set_company, что бы выбрать компании").build());
-
+                messageLog += ". Authorization already done, key: " + key;
             } else if (result) {
                 updateChatConnections();
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Авторизация прошла успешно, введите /set_company, что бы выбрать компании").build());
+                messageLog += ". Authorization completed successfully, key: " + key;
             } else {
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Неправильный ключ, попробуйте еще раз").build());
+                messageLog += ". Authorization failed: " + key;
             }
+
+            log.info(messageLog);
 
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
@@ -154,6 +165,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void handleCallBackQuery(CallbackQuery callbackQuery) {
         String callBack = callbackQuery.getData();
+        String messageLog = "Chat: " + callbackQuery.getMessage().getChat().getId();
 
         TelegramConnectionModel telegramConnectionModel = chatConnections.get(callbackQuery.getMessage().getChatId());
 
@@ -165,12 +177,16 @@ public class TelegramBot extends TelegramLongPollingBot {
         int page = 1;
         if (callBack.contains("p")) {
             telegramConnectionModel.setPage(Integer.parseInt(callBack.substring(1)));
+            messageLog += ". Pressed the button: " + callBack;
 
         } else if (telegramConnectionModel.getActivatedCompanies().contains(Long.parseLong(callBack))) {
             telegramConnectionModel.getActivatedCompanies().remove(Long.parseLong(callBack));
+            messageLog += ". Deactivated the button: " + callBack;
         } else {
             telegramConnectionModel.getActivatedCompanies().add(Long.parseLong(callBack));
+            messageLog += ". Activated the button: " + callBack;
         }
+        log.info(messageLog);
 
         telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
 
@@ -202,15 +218,19 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void handleCommandMessage(Message message) {
         Optional<MessageEntity> commandEntity = message.getEntities().stream().findFirst();
 
+
         if (commandEntity.isPresent()) {
 
             String command = commandEntity.get().getText();
-            if (command.startsWith("/set_company"))
+            if (command.startsWith("/set_company")) {
                 setCompanyCommand(message);
-            else if (command.startsWith("/get_alarm_"))
+            } else if (command.startsWith("/get_alarm_")) {
                 getAlarmCommand(message);
+            }
 
         }
+        log.info("Chat: " + message.getChat().getId() + ". Sent a command: " + message.getText());
+
     }
 
     private void getAlarmCommand(Message message) {

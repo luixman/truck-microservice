@@ -24,22 +24,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Slf4j
 
-public class AlarmService  {
+public class AlarmService {
     private final AlarmRepo alarmRepo;
     private final ForbiddenZoneService forbiddenZoneService;
     private final TruckService truckService;
-  //  private final TelegramAlarmService telegramAlarmService;
+    private final SendRabbitAlarmMessage sendRabbitAlarmMessage;
 
     //мапа uniqId,value(alarm)
     @Getter
     private final Map<Long, Alarm> trucksInTheForbiddenZone = new ConcurrentHashMap<>();
 
     @Autowired
-    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService/*, TelegramAlarmService telegramAlarmService*/) {
+    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService, SendRabbitAlarmMessage sendRabbitAlarmMessage) {
         this.alarmRepo = alarmRepo;
         this.forbiddenZoneService = forbiddenZoneService;
         this.truckService = truckService;
-       // this.telegramAlarmService = telegramAlarmService;
+        this.sendRabbitAlarmMessage = sendRabbitAlarmMessage;
     }
 
     public List<Alarm> getAll() {
@@ -51,11 +51,10 @@ public class AlarmService  {
 
         List<Alarm> alarms = alarmRepo.findAllByZoneLeave(false);
         for (Alarm a : alarms) {
-            trucksInTheForbiddenZone.put(a.getTruckId().getUniqId(), a);
+            trucksInTheForbiddenZone.put(a.getTruck().getUniqId(), a);
         }
-        log.info("Alarm service has ben initialized or updated"+trucksInTheForbiddenZone.getClass().getName()+" size:"+trucksInTheForbiddenZone.size());
+        log.info("Alarm service has ben initialized or updated" + trucksInTheForbiddenZone.getClass().getName() + " size:" + trucksInTheForbiddenZone.size());
     }
-
 
 
     @Transient
@@ -72,8 +71,8 @@ public class AlarmService  {
         log.info(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
 
         Alarm a = Alarm.builder()
-                .forbiddenZoneId(forbiddenZone)
-                .truckId(truck)
+                .forbiddenZone(forbiddenZone)
+                .truck(truck)
                 .messageTime(truckRabbitMessageModel.getInstant())
                 .zoneLeave(false)
                 .TelegramAlert(false)
@@ -81,20 +80,19 @@ public class AlarmService  {
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
+        sendRabbitAlarmMessage.send(a);
 
-       // telegramAlarmService.addAlarm(a);
         return a;
     }
-
 
 
     @Transient
     public synchronized void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
         Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
 
-        if(a==null)
+        if (a == null)
             return;
-        ForbiddenZoneModel forbiddenZoneModel = forbiddenZoneService.toModel(a.getForbiddenZoneId());
+        ForbiddenZoneModel forbiddenZoneModel = forbiddenZoneService.toModel(a.getForbiddenZone());
 
         Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
         if (!polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))) {
@@ -103,15 +101,15 @@ public class AlarmService  {
             trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUniqId());
             alarmRepo.save(a);
 
-            log.info(a.getTruckId().getName() + " номер: " + a.getTruckId().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
+            log.info(a.getTruck().getName() + " номер: " + a.getTruck().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
         }
     }
 
     public Alarm getAlarmById(Long id) throws EntityNotFoundException {
 
         Optional<Alarm> a = alarmRepo.findById(id);
-        if(a.isEmpty())
-            throw new EntityNotFoundException("alarm not found by id= "+id);
+        if (a.isEmpty())
+            throw new EntityNotFoundException("alarm not found by id= " + id);
         return a.get();
     }
 }

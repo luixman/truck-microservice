@@ -25,6 +25,7 @@ public class ForbiddenZone {
     @Column(name="deactivated")
     private Boolean deactivated;
 
+    @JsonIgnore
     @Column(name ="company_id")
     private Long companyId;
 

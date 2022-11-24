@@ -21,16 +21,20 @@ public class Alarm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint default 0")
     private long id;
+
     @JsonSerialize(using = InstantSerializer.class)
     @Column(name = "message_time")
     private Instant messageTime;
+
 
     @JsonSerialize(using = InstantSerializer.class)
     @Column(name = "leave_time")
     private Instant leaveTime;
 
+
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
+
     @Column(name = "tg_alert", columnDefinition = "boolean default false")
     private Boolean TelegramAlert;
 
@@ -38,16 +42,14 @@ public class Alarm {
     private Boolean messageTimeWrong;
 
 
-    //@JsonIgnore
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
-    private ForbiddenZone forbiddenZoneId;
+    private ForbiddenZone forbiddenZone;
 
 
-   // @JsonIgnore
     @JoinColumn(name = "truck_id")
     @ManyToOne()
-    private Truck truckId;
+    private Truck truck;
 
 
     @Override

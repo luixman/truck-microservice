@@ -32,7 +32,7 @@ public class ReceiveRabbitMessageService {
     }
 
     @RabbitListener(queues = "${rabbitmq.receive.queue.name}")
-    public void ReceiveMessage(TruckRabbitMessageModel truckRabbitMessageModel) throws IOException, ClassNotFoundException {
+    public void receiveMessage(TruckRabbitMessageModel truckRabbitMessageModel) throws IOException, ClassNotFoundException {
 
         Runnable task = () -> {
             //если время сообщения различается больше чем на день, то у сообщения исправляется время и ставится флаг
@@ -49,7 +49,7 @@ public class ReceiveRabbitMessageService {
                 log.error("EntityNotFoundException: ", e);
                 return;
             }
-            checkingTruckCoordinates.check(truckRabbitMessageModel, truck.getCompanyId());
+            checkingTruckCoordinates.check(truckRabbitMessageModel, truck.getCompany());
         };
 
         executorService.submit(task);

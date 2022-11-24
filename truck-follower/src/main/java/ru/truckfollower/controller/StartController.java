@@ -21,13 +21,5 @@ public class StartController {
 
     @PostConstruct
     public void init() throws Exception {
-
-        Alarm a =alarmRepo.findById(1597136L).get();
-
-       // System.out.println(a);
-
-        sendRabbitAlarmMessage.send(a);
-
     }
-
 }

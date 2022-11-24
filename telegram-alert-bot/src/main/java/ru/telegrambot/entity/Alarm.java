@@ -1,9 +1,13 @@
 package ru.telegrambot.entity;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import lombok.*;
+import ru.telegrambot.model.ForbiddenZoneModel;
+import ru.telegrambot.model.TruckModel;
+import ru.telegrambot.service.DefaultInstantDeserializer;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -20,37 +24,36 @@ public class Alarm {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint default 0")
-    private long id;
-    @JsonSerialize(using = InstantSerializer.class)
+    private Long id;
+
+
+    @JsonDeserialize(using = DefaultInstantDeserializer.class)
     @Column(name = "message_time")
     private Instant messageTime;
 
-    @JsonSerialize(using = InstantSerializer.class)
+
+    @JsonDeserialize(using = DefaultInstantDeserializer.class)
     @Column(name = "leave_time")
     private Instant leaveTime;
 
+
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
+
     @Column(name = "tg_alert", columnDefinition = "boolean default false")
     private Boolean TelegramAlert;
+
 
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
 
+    @Transient
+    private ForbiddenZoneModel forbiddenZone;
 
 
-    //@JsonIgnore
-    @JoinColumn(name = "forbidden_zone_id")
-    @ManyToOne
-    private ForbiddenZone forbiddenZoneId;
-
-
-
-   // @JsonIgnore
-    @JoinColumn(name = "truck_id")
-    @ManyToOne()
-    private Truck truckId;
+    @Transient
+    private TruckModel truck;
 
 
     @Override
