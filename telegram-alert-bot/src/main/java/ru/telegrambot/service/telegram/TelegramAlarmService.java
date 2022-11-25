@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.telegrambot.entity.Alarm;
 import ru.telegrambot.model.TelegramConnectionModel;
@@ -55,6 +56,7 @@ public class TelegramAlarmService {
                         telegramBot.execute(SendMessage.builder().chatId(entry.getKey())
                                 .text(text)
                                 .build());
+
                         log.info("Chat: " + entry.getKey() + ". Notification sent. notification id: " + a.getId());
                     } catch (TelegramApiException e) {
                         log.error(e.getMessage() + ". try again in 5 seconds");

@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ru</groupId>
-    <artifactId>telegram-bot</artifactId>
+    <artifactId>telegram-alert-bot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Telegram bot</name>
     <description>Demo project for Spring Boot</description>

@@ -7,8 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -69,6 +74,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             chatConnections.put(connection.getChatId(), telegramConnectionService.toModel(connection));
         }
         this.chatConnections = chatConnections;
+
+
     }
 
     @Override
@@ -95,6 +102,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
             handleCommandMessage(message);
+
         }
 
 
@@ -108,15 +116,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handleMyChatMember(ChatMemberUpdated chatMemberUpdated) {
-        if ((chatMemberUpdated.getNewChatMember().getStatus().equals("kicked")
-                || chatMemberUpdated.getNewChatMember().getStatus().equals("left"))) {
+        if (chatMemberUpdated.getNewChatMember() instanceof ChatMemberBanned || chatMemberUpdated.getNewChatMember() instanceof ChatMemberLeft) {
             if (chatMemberUpdated.getNewChatMember().getUser().getUserName().equals(getBotUsername())) {
                 //бота кикнули
                 log.info("chat:" + chatMemberUpdated.getChat().getUserName() + " " + chatMemberUpdated.getChat().getId() + ". Left the chat");
-                telegramAuthService.authorizationDelete(chatMemberUpdated.getChat().getId());
+                telegramAuthService.chatDelete(chatMemberUpdated.getChat().getId());
                 updateChatConnections();
             }
-        } else {
+        } else if(chatMemberUpdated.getNewChatMember() instanceof ChatMemberMember || chatMemberUpdated.getNewChatMember() instanceof ChatMemberAdministrator) {
             //создаем новый коннекшн
             TelegramConnectionModel telegramConnectionModel = TelegramConnectionModel.builder()
                     .chatId(chatMemberUpdated.getChat().getId())
@@ -126,7 +133,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     .activatedCompanies(new HashSet<>())
                     .build();
             log.info("chat:" + chatMemberUpdated.getChat().getUserName() + " " + chatMemberUpdated.getChat().getId() + ". Join the chat");
-            telegramAuthService.authorizationAttempt(chatMemberUpdated.getChat().getId(), "");
+            telegramAuthService.updateAuthorization(chatMemberUpdated.getChat().getId(), false);
             telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
             updateChatConnections();
         }

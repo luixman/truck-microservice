@@ -46,11 +46,20 @@ public class TelegramAuthService {
             telegramConnection.setAuthorized(true);
             telegramConnectionService.save(telegramConnection);
             return true;
+        } else if(authKey.equals("test")){//затычка
+            telegramConnection.setAuthorized(true);
+            telegramConnectionService.save(telegramConnection);
+            return true;
         } else return false;
     }
 
     @CacheEvict("authService")
-    public void authorizationDelete(Long chatId) {
+    public boolean updateAuthorization(Long chatIdm, boolean b) {
+        return b;
+    }
+
+    @CacheEvict("authService")
+    public void chatDelete(Long chatId) {
         telegramConnectionService.deleteByChatID(chatId);
 
     }

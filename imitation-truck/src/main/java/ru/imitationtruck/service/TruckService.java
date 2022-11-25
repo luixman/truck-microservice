@@ -73,11 +73,12 @@ public class TruckService {
                         t.setInstant(Instant.now());
                         sendRabbitMessageService.send(t);
                         try {
-                            Thread.sleep(3);
+                            Thread.sleep(10);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
                     }
+                    log.info(entry.getKey().getUid()+" started again");
                 }
 
             };

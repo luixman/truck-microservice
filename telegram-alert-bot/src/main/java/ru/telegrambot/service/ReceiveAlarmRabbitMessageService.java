@@ -1,14 +1,15 @@
 package ru.telegrambot.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.telegrambot.entity.Alarm;
 import ru.telegrambot.service.telegram.TelegramAlarmService;
 
-import java.util.concurrent.ExecutorService;
 
+@Slf4j
 @Service
 public class ReceiveAlarmRabbitMessageService {
 
@@ -22,6 +23,7 @@ public class ReceiveAlarmRabbitMessageService {
 
     @RabbitListener(queues = "${rabbitmq.queue.name}")
     public void receiveMessage(Alarm a){
+        log.info("New message: "+a.getId());
         telegramAlarmService.send(a);
 
 
