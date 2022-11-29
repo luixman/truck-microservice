@@ -15,6 +15,7 @@ spring:
       driver-class-name: org.postgresql.Driver
 
 
+
 rabbitmq:
   receive:
     exchange: imitationTrucks

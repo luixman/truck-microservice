@@ -1,4 +1,4 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -5,8 +5,6 @@ package ru.telegrambot.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.*;
-import ru.telegrambot.model.ForbiddenZoneModel;
-import ru.telegrambot.model.TruckModel;
 import ru.telegrambot.service.DefaultInstantDeserializer;
 
 import javax.persistence.*;
@@ -48,12 +46,15 @@ public class Alarm {
     private Boolean messageTimeWrong;
 
 
-    @Transient
-    private ForbiddenZoneModel forbiddenZone;
+    @JoinColumn(name = "forbidden_zone_id")
+    @ManyToOne
+    private ForbiddenZone forbiddenZone;
 
 
-    @Transient
-    private TruckModel truck;
+    @JoinColumn(name = "truck_id")
+    @ManyToOne()
+    private Truck truck;
+
 
 
     @Override

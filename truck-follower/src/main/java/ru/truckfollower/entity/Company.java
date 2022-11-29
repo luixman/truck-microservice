@@ -4,6 +4,7 @@ package ru.truckfollower.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 
 @AllArgsConstructor
@@ -12,7 +13,7 @@ import javax.persistence.*;
 @Setter
 
 @Entity
-public class Company {
+public class Company implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

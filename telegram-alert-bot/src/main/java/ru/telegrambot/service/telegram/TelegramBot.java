@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -95,6 +96,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (message.getText().startsWith("/key")) {
                 handleAuthMessage(message);
+            } else if (message.getText().equals("/start") && !chatConnections.containsKey(message.getChatId())) {// TODO: 29.11.2022 переписать сервис аутентификации
+                TelegramConnectionModel telegramConnectionModel = TelegramConnectionModel.builder()
+                        .chatId(message.getChat().getId())
+                        .authKey(keyGeneratorService.getNewTelegramRandomKey())
+                        .firstAuthTime(Instant.now())//фикс
+                        .authorized(false)
+                        .activatedCompanies(new HashSet<>())
+                        .build();
+                log.info("chat:" + message.getChat().getUserName() + " " + message.getChat().getId() + ". Join the chat");
+                telegramAuthService.updateAuthorization(message.getChat().getId(), false);
+                telegramConnectionService.save(telegramConnectionService.toEntity(telegramConnectionModel));
+                updateChatConnections();
             }
 
             if (!telegramAuthService.hasChatAuth(message.getChatId())) {
@@ -123,7 +136,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 telegramAuthService.chatDelete(chatMemberUpdated.getChat().getId());
                 updateChatConnections();
             }
-        } else if(chatMemberUpdated.getNewChatMember() instanceof ChatMemberMember || chatMemberUpdated.getNewChatMember() instanceof ChatMemberAdministrator) {
+        } else if (chatMemberUpdated.getNewChatMember() instanceof ChatMemberMember || chatMemberUpdated.getNewChatMember() instanceof ChatMemberAdministrator) {
             //создаем новый коннекшн
             TelegramConnectionModel telegramConnectionModel = TelegramConnectionModel.builder()
                     .chatId(chatMemberUpdated.getChat().getId())
@@ -249,7 +262,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             alarmId = Long.parseLong(message.getText().replace("/get_alarm_", "").replace("@truck_alert_bot", ""));
             a = alarmService.getAlarmById(alarmId);
         } catch (NumberFormatException e) {
-            log.error("Method getAlarmTruck parse error: " + message.getText());
+            log.warn("Method getAlarmTruck parse error: " + message.getText());
             return;
             // TODO: 23.11.2022 можно сообщение об ошибке сюда добавить
         } catch (EntityNotFoundException e) {
@@ -257,13 +270,22 @@ public class TelegramBot extends TelegramLongPollingBot {
             return;
         }
 
+        String text = alarmService.getDeatailedMessage(a);
+
 
         try {
-            execute(SendMessage.builder()
+            Message m = execute(SendMessage.builder()
                     .chatId(message.getChatId())
-                    .text(a.toString())
+                    .text(text)
                     .allowSendingWithoutReply(true)
                     .replyToMessageId(message.getMessageId())
+                    .build());
+
+            execute(SendLocation.builder()
+                    .chatId(message.getChatId())
+                    .replyToMessageId(m.getMessageId())
+                    .longitude(37.2)
+                    .latitude(57.1)
                     .build());
         } catch (TelegramApiException e) {
             log.error(e.getMessage());

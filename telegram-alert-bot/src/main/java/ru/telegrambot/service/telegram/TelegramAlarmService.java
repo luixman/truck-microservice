@@ -58,7 +58,7 @@ public class TelegramAlarmService {
                                 .build());
 
                         log.info("Chat: " + entry.getKey() + ". Notification sent. notification id: " + a.getId());
-                    } catch (TelegramApiException e) {
+                    } catch (Exception e) {
                         log.error(e.getMessage() + ". try again in 5 seconds");
                         Thread.sleep(5000);
                         send(a);

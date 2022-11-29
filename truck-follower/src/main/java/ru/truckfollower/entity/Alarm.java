@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.Instant;
 
 @AllArgsConstructor
@@ -16,7 +17,7 @@ import java.time.Instant;
 @Builder
 
 @Entity
-public class Alarm {
+public class Alarm implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint default 0")

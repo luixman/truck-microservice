@@ -1,4 +1,4 @@
-package ru.truckfollower.entity;
+package ru.telegrambot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
