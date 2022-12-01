@@ -1,32 +1,34 @@
 package ru.telegrambot.config;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
 @Getter
+@Setter
+@ConfigurationProperties(prefix = "rabbitmq")
 public class RabbitMqConfig {
+
     /**
      *Компоненты для получения сообщений
      */
+    private String exchange;
+    private String routingKey;
 
     @Value("${rabbitmq.queue.name}")
     private String queue;
-    @Value("${rabbitmq.exchange}")
-    private String exchange;
-    @Value("${rabbitmq.routing-key}")
-    private String routingKey;
     @Value("${rabbitmq.queue.durable}")
     private boolean durable;
-
     @Value("${rabbitmq.queue.exclusive}")
     private boolean exclusive;
 

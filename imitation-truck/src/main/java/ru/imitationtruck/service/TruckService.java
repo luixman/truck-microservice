@@ -73,7 +73,7 @@ public class TruckService {
                         t.setInstant(Instant.now());
                         sendRabbitMessageService.send(t);
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(5);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

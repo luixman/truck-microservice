@@ -28,18 +28,18 @@ public class AlarmService {
     private final AlarmRepo alarmRepo;
     private final ForbiddenZoneService forbiddenZoneService;
     private final TruckService truckService;
-    private final SendRabbitAlarmMessage sendRabbitAlarmMessage;
+    private final SendAlarmMessageService sendAlarmMessageService;
 
     //мапа uniqId,value(alarm)
     @Getter
     private final Map<Long, Alarm> trucksInTheForbiddenZone = new ConcurrentHashMap<>();
 
     @Autowired
-    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService, SendRabbitAlarmMessage sendRabbitAlarmMessage) {
+    public AlarmService(AlarmRepo alarmRepo, ForbiddenZoneService forbiddenZoneService, TruckService truckService, SendAlarmMessageService sendAlarmMessageService) {
         this.alarmRepo = alarmRepo;
         this.forbiddenZoneService = forbiddenZoneService;
         this.truckService = truckService;
-        this.sendRabbitAlarmMessage = sendRabbitAlarmMessage;
+        this.sendAlarmMessageService = sendAlarmMessageService;
     }
 
     public List<Alarm> getAll() {
@@ -80,7 +80,7 @@ public class AlarmService {
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
-        sendRabbitAlarmMessage.send(a);
+        sendAlarmMessageService.send(a);
 
         return a;
     }
