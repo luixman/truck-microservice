@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.telegrambot.entity.Alarm;
+import ru.telegrambot.model.AlarmSendModel;
 import ru.telegrambot.model.TelegramConnectionModel;
 
 import java.time.ZoneId;
@@ -31,8 +32,22 @@ public class TelegramAlarmService {
 
 
     @SneakyThrows //для всех случаев, кроме TelegramApiException
-    public void send(Alarm a) {
+    public void send(AlarmSendModel a) {
 
+        if(a.isZoneLeave()){
+
+            System.out.println(a.getId()+" закрылся");
+
+
+        }
+        else {
+            sendNoZoneLeaveMessage(a);
+        }
+
+
+    }
+
+    private void sendNoZoneLeaveMessage(AlarmSendModel a) throws InterruptedException {
         Map<Long, TelegramConnectionModel> chatConnections = telegramBot.getChatConnections();
 
         for (Map.Entry<Long, TelegramConnectionModel> entry : chatConnections.entrySet()) {
@@ -50,7 +65,7 @@ public class TelegramAlarmService {
                             a.getForbiddenZone().getZoneName() +
                             "\n" +
                             "Время: " +
-                            formatter.format(a.getMessageTime())
+                            formatter.format(a.getTime())
                             + "\nВведите /get_alarm_" + a.getId() + " чтобы увидеть подробную информацию";
                     try {
                         telegramBot.execute(SendMessage.builder().chatId(entry.getKey())
@@ -66,7 +81,5 @@ public class TelegramAlarmService {
                 }
         }
         Thread.sleep(1000);
-
-
     }
 }

@@ -5,6 +5,9 @@ package ru.telegrambot.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.*;
+import org.postgis.Point;
+import org.postgresql.geometric.PGpoint;
+
 import ru.telegrambot.service.DefaultInstantDeserializer;
 
 import javax.persistence.*;
@@ -45,6 +48,14 @@ public class Alarm {
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
+    @Column(name ="point_entry")
+    private Point pointEntry;
+
+    @Column(name ="point_exit")
+    private Point pointExit;
+
+
+
 
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
@@ -54,6 +65,7 @@ public class Alarm {
     @JoinColumn(name = "truck_id")
     @ManyToOne()
     private Truck truck;
+
 
 
 

@@ -1,10 +1,11 @@
 package ru.truckfollower.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
+import org.postgis.Point;
+
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -41,6 +42,12 @@ public class Alarm implements Serializable {
 
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
+
+    @Column(name ="point_entry")
+    private Point pointEntry;
+
+    @Column(name ="point_exit")
+    private Point pointExit;
 
 
     @JoinColumn(name = "forbidden_zone_id")

@@ -284,8 +284,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             execute(SendLocation.builder()
                     .chatId(message.getChatId())
                     .replyToMessageId(m.getMessageId())
-                    .longitude(37.2)
-                    .latitude(57.1)
+                    .latitude(a.getPointEntry().getX())
+                    .longitude(a.getPointEntry().getY())
                     .build());
         } catch (TelegramApiException e) {
             log.error(e.getMessage());

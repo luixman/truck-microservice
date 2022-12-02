@@ -19,6 +19,9 @@ public class AlarmSendModel {
     Boolean messageTimeWrong;
     Boolean zoneLeave;
 
+    Double x;
+    Double y;
+
     ForbiddenZone forbiddenZone;
     Truck truck;
 

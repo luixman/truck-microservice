@@ -9,6 +9,7 @@ import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.ForbiddenZone;
 import ru.truckfollower.entity.Truck;
 import ru.truckfollower.exception.EntityNotFoundException;
+import ru.truckfollower.model.AlarmSendModel;
 import ru.truckfollower.model.ForbiddenZoneModel;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.AlarmRepo;
@@ -77,11 +78,15 @@ public class AlarmService {
                 .zoneLeave(false)
                 .TelegramAlert(false)
                 .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
+                .pointEntry(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
-        sendAlarmMessageService.send(a);
 
+        AlarmSendModel alarmSendModel = toModel(a);
+        alarmSendModel.setX(truckRabbitMessageModel.getX());
+        alarmSendModel.setY(truckRabbitMessageModel.getY());
+        sendAlarmMessageService.send(alarmSendModel);
         return a;
     }
 
@@ -99,7 +104,14 @@ public class AlarmService {
             a.setLeaveTime(truckRabbitMessageModel.getInstant());
             a.setZoneLeave(true);
             trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUniqId());
+            a.setPointExit(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
             alarmRepo.save(a);
+
+            AlarmSendModel alarmSendModel = toModel(a);
+            alarmSendModel.setX(truckRabbitMessageModel.getX());
+            alarmSendModel.setY(truckRabbitMessageModel.getY());
+
+            sendAlarmMessageService.send(alarmSendModel);
 
             log.info(a.getTruck().getName() + " номер: " + a.getTruck().getCarNumber() + " вышел из запретной зоны \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
         }
@@ -111,5 +123,20 @@ public class AlarmService {
         if (a.isEmpty())
             throw new EntityNotFoundException("alarm not found by id= " + id);
         return a.get();
+    }
+
+    private AlarmSendModel toModel(Alarm a) {
+        AlarmSendModel alarmSendModel = new AlarmSendModel();
+        alarmSendModel.setId(a.getId());
+        alarmSendModel.setMessageTimeWrong(a.getMessageTimeWrong());
+        alarmSendModel.setZoneLeave(a.getZoneLeave());
+        alarmSendModel.setTruck(a.getTruck());
+        alarmSendModel.setForbiddenZone(a.getForbiddenZone());
+
+        if (a.getZoneLeave())
+            alarmSendModel.setTime(a.getLeaveTime());
+        else
+            alarmSendModel.setTime(a.getMessageTime());
+        return alarmSendModel;
     }
 }
