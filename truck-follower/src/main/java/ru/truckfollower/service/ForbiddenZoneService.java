@@ -20,6 +20,7 @@ import java.util.Optional;
 public class ForbiddenZoneService {
 
     private final ForbiddenZoneRepo forbiddenZoneRepo;
+
     @Autowired
     public ForbiddenZoneService(ForbiddenZoneRepo forbiddenZoneRepo) {
         this.forbiddenZoneRepo = forbiddenZoneRepo;
@@ -36,7 +37,7 @@ public class ForbiddenZoneService {
             g = new PGgeometry(forbiddenZone.getPolygon()).getGeometry();
         } catch (SQLException e) {
             //log.error("Object" + forbiddenZone + " has an exception");
-            g = new Point(0, 0);
+            // g = new Point(0, 0);
             throw new RuntimeException(e);
         }
 

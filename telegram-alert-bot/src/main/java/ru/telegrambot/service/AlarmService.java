@@ -9,12 +9,9 @@ import ru.telegrambot.entity.Truck;
 import ru.telegrambot.exception.EntityNotFoundException;
 import ru.telegrambot.repo.AlarmRepo;
 
-
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 
 @Service
@@ -54,20 +51,19 @@ public class AlarmService {
                 .append(t.getCarNumber())
                 .append("\uD83D\uDE9B\n");
 
-        sb.append("🚩Время въезда: ")
+        sb.append("\uD83D\uDFE5Время въезда: ")
                 .append(formatter.format(a.getMessageTime()))
-                .append("🚩\n");
+                .append("\uD83D\uDFE5\n");
 
-        sb.append("\uD83C\uDFC1Время выезда: ");
+        sb.append("\uD83D\uDFE9Время выезда: ");
         if (a.getLeaveTime() != null)
             sb.append(formatter.format(a.getLeaveTime()));
         else
             sb.append("не выехал");
-        sb.append("\uD83C\uDFC1\n");
+        sb.append("\uD83D\uDFE9\n");
 
         if (a.getLeaveTime() != null) {
             Duration duration = Duration.between(a.getMessageTime(), a.getLeaveTime());
-            duration = duration.plusHours(1);
             sb.append("🕐Проведено времени: ")
                     .append(String.format("%02d:%02d:%02d", duration.toHours(), duration.toMinutes() % 60, duration.toSeconds() % 60))
                     .append("🕐\n");
@@ -82,8 +78,7 @@ public class AlarmService {
                 .append(c.getInn())
                 .append(", телефон: ")
                 .append(c.getPhoneNumber())
-                .append("\uD83C\uDFE2\n");
-        sb.append("Координаты въезда: ⤵️⤵️⤵️");
+                .append("\uD83C\uDFE2");
         return sb.toString();
     }
 }

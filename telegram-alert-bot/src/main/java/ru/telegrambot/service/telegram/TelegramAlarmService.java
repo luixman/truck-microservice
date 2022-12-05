@@ -1,5 +1,6 @@
 package ru.telegrambot.service.telegram;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class TelegramAlarmService {
         if(a.isZoneLeave()){
 
             System.out.println(a.getId()+" закрылся");
+            // TODO: 05.12.2022  
 
 
         }

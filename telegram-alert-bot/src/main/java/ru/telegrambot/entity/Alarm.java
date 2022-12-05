@@ -28,12 +28,12 @@ public class Alarm {
     private Long id;
 
 
-    @JsonDeserialize(using = DefaultInstantDeserializer.class)
+    //@JsonDeserialize(using = DefaultInstantDeserializer.class)
     @Column(name = "message_time")
     private Instant messageTime;
 
 
-    @JsonDeserialize(using = DefaultInstantDeserializer.class)
+    //@JsonDeserialize(using = DefaultInstantDeserializer.class)
     @Column(name = "leave_time")
     private Instant leaveTime;
 

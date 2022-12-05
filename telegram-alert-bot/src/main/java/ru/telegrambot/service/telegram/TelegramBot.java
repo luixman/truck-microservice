@@ -26,9 +26,12 @@ import ru.telegrambot.model.TelegramConnectionModel;
 import ru.telegrambot.service.AlarmService;
 import ru.telegrambot.service.CompanyService;
 import ru.telegrambot.service.KeyGeneratorService;
+import ru.telegrambot.service.YandexMapConstructorService;
 
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +52,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final KeyGeneratorService keyGeneratorService;
     private final TelegramAuthService telegramAuthService;
     private final AlarmService alarmService;
+    private final YandexMapConstructorService yandexMapConstructorService;
 
 
     @Autowired
@@ -56,13 +60,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public TelegramBot(@Value("${telegram.bot.token}") String botToken, @Value("${telegram.bot.name}") String botName,
                        TelegramConnectionService telegramConnectionService, KeyGeneratorService keyGeneratorService,
-                       TelegramAuthService telegramAuthService, AlarmService alarmService) {
+                       TelegramAuthService telegramAuthService, AlarmService alarmService,
+                       YandexMapConstructorService yandexMapConstructorService) {
         this.botToken = botToken;
         this.botName = botName;
         this.telegramConnectionService = telegramConnectionService;
         this.keyGeneratorService = keyGeneratorService;
         this.telegramAuthService = telegramAuthService;
         this.alarmService = alarmService;
+        this.yandexMapConstructorService = yandexMapConstructorService;
 
     }
 
@@ -272,22 +278,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         String text = alarmService.getDeatailedMessage(a);
 
-
         try {
-            Message m = execute(SendMessage.builder()
-                    .chatId(message.getChatId())
-                    .text(text)
-                    .allowSendingWithoutReply(true)
-                    .replyToMessageId(message.getMessageId())
-                    .build());
+            InputStream photoInputStream = yandexMapConstructorService.getInStreamByURL(yandexMapConstructorService.getURLByAlarm(a));
+            InputFile photo = new InputFile();
+            photo.setMedia(photoInputStream, String.valueOf(a.getId()));
 
-            execute(SendLocation.builder()
+            execute(SendPhoto.builder()
                     .chatId(message.getChatId())
-                    .replyToMessageId(m.getMessageId())
-                    .latitude(a.getPointEntry().getX())
-                    .longitude(a.getPointEntry().getY())
+                    .replyToMessageId(message.getMessageId())
+                    .caption(text)
+                    .photo(photo)
                     .build());
-        } catch (TelegramApiException e) {
+        } catch (TelegramApiException | IOException e) {
             log.error(e.getMessage());
         }
     }
