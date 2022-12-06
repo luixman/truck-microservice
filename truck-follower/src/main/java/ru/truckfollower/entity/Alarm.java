@@ -4,7 +4,7 @@ package ru.truckfollower.entity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.*;
-import org.postgis.Point;
+import org.springframework.data.geo.Point;
 
 
 import javax.persistence.*;
@@ -37,9 +37,6 @@ public class Alarm implements Serializable {
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
 
-    @Column(name = "tg_alert", columnDefinition = "boolean default false")
-    private Boolean TelegramAlert;
-
     @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
@@ -67,7 +64,6 @@ public class Alarm implements Serializable {
                 ", messageTime=" + messageTime +
                 ", leaveTime=" + leaveTime +
                 ", zoneLeave=" + zoneLeave +
-                ", isTelegramAlert=" + TelegramAlert +
                 ", messageTimeWrong=" + messageTimeWrong +
                 '}';
     }

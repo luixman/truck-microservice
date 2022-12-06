@@ -12,6 +12,7 @@ import ru.telegrambot.repo.AlarmRepo;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,7 +38,7 @@ public class AlarmService {
         return a.get();
     }
 
-    public String getDeatailedMessage(Alarm a) {
+    public String getDetailedMessage(Alarm a) {
         Truck t = a.getTruck();
         ForbiddenZone f = a.getForbiddenZone();
         Company c = a.getTruck().getCompany();
@@ -80,5 +81,9 @@ public class AlarmService {
                 .append(c.getPhoneNumber())
                 .append("\uD83C\uDFE2");
         return sb.toString();
+    }
+
+    public List<Alarm> findFirst30ByZoneLeave(Boolean zoneLeave) {
+        return alarmRepo.findFirst30ByZoneLeave(zoneLeave);
     }
 }

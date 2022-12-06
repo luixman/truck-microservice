@@ -9,9 +9,7 @@ import java.util.List;
 public interface AlarmRepo extends JpaRepository<Alarm,Long> {
 
     List<Alarm> findAllByZoneLeave(Boolean zoneLeave);
-
-    @Query(value = "SELECT * FROM alarm WHERE tg_alert=false LIMIT 10",nativeQuery = true)
-    List<Alarm> findFirst10ByNotTelegramAlert();
+    List<Alarm> findFirst30ByZoneLeave(Boolean zoneLeave);
 
 
 

@@ -36,7 +36,7 @@ public class ForbiddenZoneService {
         try {
             g = new PGgeometry(forbiddenZone.getPolygon()).getGeometry();
         } catch (SQLException e) {
-            //log.error("Object" + forbiddenZone + " has an exception");
+            log.error("Object" + forbiddenZone + " has an exception");
             // g = new Point(0, 0);
             throw new RuntimeException(e);
         }

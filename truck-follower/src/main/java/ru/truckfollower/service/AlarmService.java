@@ -76,9 +76,8 @@ public class AlarmService {
                 .truck(truck)
                 .messageTime(truckRabbitMessageModel.getInstant())
                 .zoneLeave(false)
-                .TelegramAlert(false)
                 .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
-                .pointEntry(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))
+                .pointEntry(new org.springframework.data.geo.Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))
                 .build();
         a = alarmRepo.save(a);
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
@@ -104,7 +103,7 @@ public class AlarmService {
             a.setLeaveTime(truckRabbitMessageModel.getInstant());
             a.setZoneLeave(true);
             trucksInTheForbiddenZone.remove(truckRabbitMessageModel.getUniqId());
-            a.setPointExit(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
+            a.setPointExit(new org.springframework.data.geo.Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));
             alarmRepo.save(a);
 
             AlarmSendModel alarmSendModel = toModel(a);

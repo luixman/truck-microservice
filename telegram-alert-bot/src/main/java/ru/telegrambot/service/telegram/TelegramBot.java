@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberMember;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.telegrambot.entity.Alarm;
@@ -33,6 +34,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -102,11 +105,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (message.getText().startsWith("/key")) {
                 handleAuthMessage(message);
-            } else if (message.getText().equals("/start") && !chatConnections.containsKey(message.getChatId())) {// TODO: 29.11.2022 переписать сервис аутентификации
+            } else if (message.getText().equals("/start") && !chatConnections.containsKey(message.getChatId())) {
+                // TODO: 29.11.2022 переписать сервис аутентификации
                 TelegramConnectionModel telegramConnectionModel = TelegramConnectionModel.builder()
                         .chatId(message.getChat().getId())
                         .authKey(keyGeneratorService.getNewTelegramRandomKey())
-                        .firstAuthTime(Instant.now())//фикс
+                        .firstAuthTime(Instant.now())//фикс TODO
                         .authorized(false)
                         .activatedCompanies(new HashSet<>())
                         .build();
@@ -201,10 +205,14 @@ public class TelegramBot extends TelegramLongPollingBot {
             return;
         }
         int page = 1;
-        if (callBack.contains("p")) {
+        if (callBack.startsWith("p")) {
             telegramConnectionModel.setPage(Integer.parseInt(callBack.substring(1)));
             messageLog += ". Pressed the button: " + callBack;
 
+        } else if (callBack.startsWith("a")) {
+            System.out.println(callBack);
+            // TODO: 05.12.2022 добавить обработку кнопки о выходе из запретной зоны
+            return;
         } else if (telegramConnectionModel.getActivatedCompanies().contains(Long.parseLong(callBack))) {
             telegramConnectionModel.getActivatedCompanies().remove(Long.parseLong(callBack));
             messageLog += ". Deactivated the button: " + callBack;
@@ -252,11 +260,60 @@ public class TelegramBot extends TelegramLongPollingBot {
                 setCompanyCommand(message);
             } else if (command.startsWith("/get_alarm_")) {
                 getAlarmCommand(message);
+            } else if (command.startsWith("/get_trucks_in_forbidden_zone")) {
+                getTrucksInForbiddenZoneCommand(message);
+            } else if(command.startsWith("/help")){
+                helpCommand(message);
             }
 
         }
         log.info("Chat: " + message.getChat().getId() + ". Sent a command: " + message.getText());
 
+    }
+
+    private void helpCommand(Message message) {
+        String text ="/key -  Введите через пробел ключ активации \n" +
+                "/set_company - Получить список для выбора отслеживаемых компаний\n" +
+                "/get_alarm_12345 - Получить подробные сведения о оповещении, где \"12345\" - id оповещения\n" +
+                "/get_trucks_in_forbidden_zone - Получить список грузовиков, которые в данный момент находятся в запретной зоне. Будут выведены последние 30 записей.";
+
+        try {
+            execute(SendMessage.builder().chatId(message.getChatId())
+                    .replyToMessageId(message.getMessageId())
+                    .text(text)
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error("error execute help command");
+        }
+    }
+
+    private void getTrucksInForbiddenZoneCommand(Message message) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy. HH:mm:ss")
+                .withZone(ZoneId.systemDefault());
+
+        List<Alarm> alarms = alarmService.findFirst30ByZoneLeave(false);
+
+        StringBuilder text = new StringBuilder();
+        if (alarms.isEmpty()) {
+            text.append("В данный момент нет грузовиков, находящихся в запретной зоне");
+        } else {
+            text.append("Всего найдено записей: ").append(alarms.size()).append("\n");
+
+            for (int i = 0; i < alarms.size(); i++) {
+                Alarm a = alarms.get(i);
+                text.append(String.format("%2s. %-18s %s \n", i+1, formatter.format(a.getMessageTime()), "/get_alarm_" + a.getId()));
+            }
+
+        }
+        try {
+            execute(SendMessage.builder().chatId(message.getChatId())
+                    .text(text.toString())
+                    .replyToMessageId(message.getMessageId())
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error("Error send getTrucksInForbiddenZoneCommand message");
+        }
     }
 
     private void getAlarmCommand(Message message) {
@@ -270,13 +327,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (NumberFormatException e) {
             log.warn("Method getAlarmTruck parse error: " + message.getText());
             return;
-            // TODO: 23.11.2022 можно сообщение об ошибке сюда добавить
         } catch (EntityNotFoundException e) {
-            log.error(e.getMessage());
+            log.warn(e.getMessage());
             return;
         }
 
-        String text = alarmService.getDeatailedMessage(a);
+        String text = alarmService.getDetailedMessage(a);
 
         try {
             InputStream photoInputStream = yandexMapConstructorService.getInStreamByURL(yandexMapConstructorService.getURLByAlarm(a));

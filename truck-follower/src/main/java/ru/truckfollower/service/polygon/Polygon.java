@@ -41,7 +41,6 @@ public class Polygon {
         }
 
         return new Polygon(list);
-
     }
 
     private void rangeCalculation() {

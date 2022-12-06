@@ -50,6 +50,9 @@ public class CheckingTruckCoordinatesService {
         List<ForbiddenZoneModel> forbiddenZoneModelList = new ArrayList<>();
 
         for (ForbiddenZone forbiddenZone : forbiddenZoneList) {
+            //если запретная зона деактивирована
+            if(forbiddenZone.getDeactivated())
+                continue;
 
             ForbiddenZoneModel model = forbiddenZoneService.toModel(forbiddenZone);
 
