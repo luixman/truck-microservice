@@ -9,9 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.imitationtruck.entity.Truck;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +37,9 @@ public class TruckService {
 
         List<List<Point>> list = new ArrayList<>();
         for (int i = 0; i < files.length; i++) {
-            BufferedReader reader = new BufferedReader(new FileReader(".\\imitation-truck\\"+files[i]));
+            ClassLoader classLoader =Thread.currentThread().getContextClassLoader();
+            InputStream is = classLoader.getResourceAsStream(files[i]);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<Point> l = new ArrayList();
             list.add(l);
             while (reader.ready()) {
@@ -73,7 +73,7 @@ public class TruckService {
                         t.setInstant(Instant.now());
                         sendRabbitMessageService.send(t);
                         try {
-                            Thread.sleep(30);
+                            Thread.sleep(1000);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

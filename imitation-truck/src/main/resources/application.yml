@@ -1,6 +1,7 @@
 spring:
   rabbitmq:
-    host: localhost
+    #host: localhost
+    host: host.docker.internal
     port: 5672
     stream:
       username: guest

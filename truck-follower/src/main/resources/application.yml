@@ -3,13 +3,15 @@ server:
 
 spring:
   rabbitmq:
-    host: localhost
+    #host: localhost
+    host: host.docker.internal
     port: 5672
     stream:
       username: guest
       password: guest
   datasource:
-      url: jdbc:postgresql://localhost:5432/truck_microservice
+      url: jdbc:postgresql://host.docker.internal:5432/truck_microservice
+      #url: jdbc:postgresql://localhost:5432/truck_microservice
       username: postgres
       password: root
       driver-class-name: org.postgresql.Driver
