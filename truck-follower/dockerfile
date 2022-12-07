@@ -1,0 +1,10 @@
+FROM maven:3.8-openjdk-17 AS maven_build
+EXPOSE 8081
+WORKDIR java
+COPY ./ ./
+RUN mvn clean package -DskipTests
+
+FROM akoskuczi/openjdk-11
+COPY --from=maven_build java/target/truck-follower-0.0.1-SNAPSHOT.jar out/truck-follower.jar
+
+ENTRYPOINT ["java", "-jar", "out/truck-follower.jar"]

@@ -1,0 +1,22 @@
+version: "3"
+services:
+  imitation-truck:
+    image: imitation-truck:latest
+    ports:
+      - 8080:8080
+    build: /imitation-truck
+
+  truck-follower:
+    image: truck-follower:latest
+    build: /truck-follower
+
+
+  telegram-alert-bot:
+    image: telegram-alert-bot:latest
+    build: /telegram-alert-bot
+
+
+
+
+
+
