@@ -1,6 +1,3 @@
-
-
-
 INSERT into forbidden_zone(zone_name, company_id, polygon)
 VALUES ('skniga', 1, ST_GeometryFromText('POLYGON ((54.95378 37.4123,
 					   54.95353 37.42042,

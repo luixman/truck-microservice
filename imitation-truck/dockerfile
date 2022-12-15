@@ -9,5 +9,5 @@ RUN mvn clean package -DskipTests
 FROM akoskuczi/openjdk-11
 COPY --from=MAVEN_BUILD java/target/imitation-truck-1.0.jar out/imitation-truck.jar
 
-CMD ["java", "-jar", "out/imitation-truck.jar"]
+CMD ["java", "-jar","-Dspring.profiles.active=docker", "out/imitation-truck.jar"]
 

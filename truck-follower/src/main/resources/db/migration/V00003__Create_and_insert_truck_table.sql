@@ -1,4 +1,3 @@
-
 CREATE TABLE truck(
     id SERIAL PRIMARY KEY,
     uid bigint,  --Уникальный ид, с которым приходят сообщения

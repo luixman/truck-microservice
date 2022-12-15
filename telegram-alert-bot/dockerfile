@@ -8,5 +8,5 @@ RUN mvn clean package -DskipTests
 FROM akoskuczi/openjdk-11
 COPY --from=maven_build java/target/telegram-alert-bot-0.0.1-SNAPSHOT.jar out/telegram-bot.jar
 
-ENTRYPOINT ["java","-jar","-Dspring.profiles.active=personal", "out/telegram-bot.jar"]
+ENTRYPOINT ["java","-jar","-Dspring.profiles.active=personal,docker", "out/telegram-bot.jar"]
 

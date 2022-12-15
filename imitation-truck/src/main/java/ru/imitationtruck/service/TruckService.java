@@ -1,6 +1,8 @@
 package ru.imitationtruck.service;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.postgis.Point;
@@ -9,25 +11,36 @@ import org.springframework.stereotype.Service;
 import ru.imitationtruck.entity.Truck;
 
 import javax.annotation.PostConstruct;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
 public class TruckService {
 
+    private final SendRabbitMessageService sendRabbitMessageService;
+    private final Map<Truck, List<Point>> truckListMap = new LinkedHashMap<>();
+    private ExecutorService executorService;
+    private boolean isStarted = false;
+
+
+    @Getter
+    @Setter
+    private int timeout;
 
     @Autowired
-    private SendRabbitMessageService sendRabbitMessageService;
-
-
-    Map<Truck, List<Point>> truckListMap = new LinkedHashMap<>();
-
-    ExecutorService executorService = Executors.newFixedThreadPool(3);
+    public TruckService(SendRabbitMessageService sendRabbitMessageService) {
+        this.sendRabbitMessageService = sendRabbitMessageService;
+    }
 
     @PostConstruct
     public void initialize() throws Exception {
@@ -37,7 +50,7 @@ public class TruckService {
 
         List<List<Point>> list = new ArrayList<>();
         for (int i = 0; i < files.length; i++) {
-            ClassLoader classLoader =Thread.currentThread().getContextClassLoader();
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
             InputStream is = classLoader.getResourceAsStream(files[i]);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<Point> l = new ArrayList();
@@ -53,48 +66,44 @@ public class TruckService {
         truckListMap.put(new Truck(100002L, 0, 0), list.get(1));
         truckListMap.put(new Truck(100003L, 0, 0), list.get(2));
 
-        startMove();
     }
-
-
 
 
     @SneakyThrows
     public void startMove() {
+        if (!isStarted) {
+            isStarted = true;
+            executorService = Executors.newFixedThreadPool(truckListMap.size());
 
-        for (Map.Entry<Truck, List<Point>> entry : truckListMap.entrySet()) {
-            Runnable task = () -> {
-
-                Truck t = entry.getKey();
-                while(true) {
-                    for (Point p : entry.getValue()) {
-                        t.setX(p.y);
-                        t.setY(p.x);
-                        t.setInstant(Instant.now());
-                        sendRabbitMessageService.send(t);
-                        try {
-                            Thread.sleep(1000);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
+            for (Map.Entry<Truck, List<Point>> entry : truckListMap.entrySet()) {
+                Runnable task = () -> {
+                    Truck t = entry.getKey();
+                    while (true) {
+                        for (Point p : entry.getValue()) {
+                            t.setX(p.y);
+                            t.setY(p.x);
+                            t.setInstant(Instant.now());
+                            sendRabbitMessageService.send(t);
+                            try {
+                                Thread.sleep(timeout);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
                         }
+                        log.info(entry.getKey().getUid() + " started again");
                     }
-                    log.info(entry.getKey().getUid()+" started again");
-                }
 
-            };
-            executorService.submit(task);
+                };
+                executorService.submit(task);
+            }
 
         }
-
-
     }
 
     public void stopMove() {
-
+        executorService.shutdownNow();
+        isStarted = false;
     }
-
-
-
 
 
 }

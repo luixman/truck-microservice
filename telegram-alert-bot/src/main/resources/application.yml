@@ -1,26 +1,20 @@
-
-
 server:
   port: 8082
 
 spring:
   rabbitmq:
-    #host: localhost
-    host: host.docker.internal
+    host: localhost
     port: 5672
     stream:
       username: guest
       password: guest
   datasource:
-      #url: jdbc:postgresql://localhost:5432/truck_microservice
-      url: jdbc:postgresql://host.docker.internal:5432/truck_microservice
+      url: jdbc:postgresql://localhost:5433/truck_microservice
       username: postgres
       password: root
       driver-class-name: org.postgresql.Driver
   profiles:
     active: personal
-
-
 
 rabbitmq:
   exchange: truck-follower
@@ -29,9 +23,6 @@ rabbitmq:
     name: sendAlarmQueue
     durable: true
     exclusive: false
-
-
-
 
 logging:
   level:

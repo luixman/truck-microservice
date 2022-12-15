@@ -1,4 +1,3 @@
-
 CREATE TABLE Company(
     id SERIAL PRIMARY KEY,
     full_name varchar,

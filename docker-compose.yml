@@ -1,19 +1,62 @@
 version: "3"
 services:
   imitation-truck:
-    image: imitation-truck:latest
+    #image: imitation-truck:latest
+    container_name: imitation-truck
     ports:
-      - 8080:8080
+      - 8090:8080
     build: /imitation-truck
+    depends_on:
+      - truck-follower
+      - rabbitmq
 
   truck-follower:
-    image: truck-follower:latest
+    #image: truck-follower:latest
+    container_name: truck-follower
     build: /truck-follower
+    depends_on:
+      - postgres
+      - rabbitmq
+    links:
+      - postgres:postgres # линкуем, тут можно сменить название линка
+    restart: on-failure
 
 
   telegram-alert-bot:
-    image: telegram-alert-bot:latest
+    #image: telegram-alert-bot:latest
+    container_name: telegram-alert-bot
     build: /telegram-alert-bot
+    restart: on-failure
+    depends_on:
+      - truck-follower
+      - rabbitmq
+    links:
+      - postgres:postgres
+
+
+  postgres:
+    image: postgis/postgis:14-3.3
+    container_name: postgres
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_DB=truck_microservice
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data/pgdata
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: truck-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
 
 

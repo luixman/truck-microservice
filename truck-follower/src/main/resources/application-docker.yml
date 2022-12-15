@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/truck_microservice
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    stream:
+      username: guest
+      password: guest
+

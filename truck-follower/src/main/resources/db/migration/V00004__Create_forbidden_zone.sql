@@ -1,15 +1,20 @@
-CREATE TABLE forbidden_zone
+create table forbidden_zone
 (
-    id          SERIAL PRIMARY KEY,
+    id          serial
+        primary key,
     zone_name   varchar(100),
-    company_id  bigint,
-    deactivated bool,
+    company_id  bigint
+        constraint fk_company
+            references company
+            on delete set null,
+    deactivated boolean default false,
+    polygon     geometry
+);
 
-    constraint fk_company
-        FOREIGN KEY (company_id)
-            REFERENCES company (id)
-            ON DELETE SET NULL
-)
+alter table forbidden_zone
+    owner to postgres;
 
+create index forbidden_zone_polygon_idx
+    on forbidden_zone using gist (polygon);
 
 
