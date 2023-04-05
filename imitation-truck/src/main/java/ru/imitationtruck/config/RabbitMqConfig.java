@@ -14,35 +14,26 @@ import java.util.Map;
 
 @Configuration
 public class RabbitMqConfig {
-
-
     public final String queue;
     public final String exchange;
     public final String routingKey;
     public final boolean durable;
     public final boolean exclusive;
-
-
-
-
-
-
-    public RabbitMqConfig(@Value("${rabbitmq.queue.name}") String queue, @Value("${rabbitmq.exchange}") String exchange, @Value("${rabbitmq.routingKey}") String routingKey,
-                          @Value("${rabbitmq.queue.durable}") boolean durable, @Value("${rabbitmq.queue.exclusive}") boolean exclusive) {
+    public RabbitMqConfig(@Value("${rabbitmq.queue.name}") String queue,
+                          @Value("${rabbitmq.exchange}") String exchange,
+                          @Value("${rabbitmq.routingKey}") String routingKey,
+                          @Value("${rabbitmq.queue.durable}") boolean durable,
+                          @Value("${rabbitmq.queue.exclusive}") boolean exclusive) {
         this.queue = queue;
         this.exchange = exchange;
         this.routingKey = routingKey;
         this.durable = durable;
         this.exclusive = exclusive;
-
-
     }
 
     @Bean
     public Queue queue() {
-       // return new Queue(queue,durable,exclusive,false);
         return new Queue(queue);
-        //TODO add durable
     }
 
     @Bean
@@ -50,21 +41,8 @@ public class RabbitMqConfig {
         return new TopicExchange(exchange);
     }
 
-/*    @Bean
-    public Binding binding(Queue queue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(queue).to(topicExchange).with(routingKey);
-    }*/
-
     @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();
     }
-
-
-/*    @Bean
-    public AmqpTemplate template(ConnectionFactory connectionFactory) {
-        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(converter());
-        return rabbitTemplate;
-    }*/
 }

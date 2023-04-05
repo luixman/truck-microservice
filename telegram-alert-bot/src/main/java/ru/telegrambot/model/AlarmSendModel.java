@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.telegrambot.entity.ForbiddenZone;
-import ru.telegrambot.entity.Truck;
+import ru.telegrambot.entity.Transport;
 import ru.telegrambot.service.DefaultInstantDeserializer;
 
 
@@ -24,6 +24,6 @@ public class AlarmSendModel {
     Double y;
 
     ForbiddenZone forbiddenZone;
-    Truck truck;
+    Transport truck;
 
 }

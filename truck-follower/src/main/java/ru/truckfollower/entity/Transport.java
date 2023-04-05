@@ -1,4 +1,4 @@
-package ru.telegrambot.entity;
+package ru.truckfollower.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @ToString
-public class Truck implements Serializable {
+public class Transport implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

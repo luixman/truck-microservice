@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.telegrambot.entity.Alarm;
 import ru.telegrambot.entity.Company;
 import ru.telegrambot.entity.ForbiddenZone;
-import ru.telegrambot.entity.Truck;
+import ru.telegrambot.entity.Transport;
 import ru.telegrambot.exception.EntityNotFoundException;
 import ru.telegrambot.repo.AlarmRepo;
 
@@ -39,7 +39,7 @@ public class AlarmService {
     }
 
     public String getDetailedMessage(Alarm a) {
-        Truck t = a.getTruck();
+        Transport t = a.getTruck();
         ForbiddenZone f = a.getForbiddenZone();
         Company c = a.getTruck().getCompany();
 

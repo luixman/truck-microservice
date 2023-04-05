@@ -22,14 +22,12 @@ public class Polygon {
     //Расчет минимальных и максимальных диапазонов для оптимизации сравнения
     private Point min;
     private Point max;
-
     public Polygon(List<Point> polygon) {
 
         if (polygon.size() < 3)
             throw new IllegalArgumentException("minimum list size: 3 elements");
         this.polygon = polygon;
         rangeCalculation();
-
     }
 
     public static Polygon geometryToPolygon(Geometry geometry) {
@@ -37,9 +35,7 @@ public class Polygon {
 
         for (int i = 0; i < geometry.numPoints(); i++) {
            list.add( geometry.getPoint(i));
-
         }
-
         return new Polygon(list);
     }
 
@@ -65,15 +61,12 @@ public class Polygon {
         min = new Point(minX, minY);
         max = new Point(maxX, maxY);
     }
-
     public boolean contains(Point p) {
         //log.info(p.getX()+" "+p.getY()+" method: contains");
         if (p.getX() > min.getX() && p.getY() > min.getY() && p.getX() < max.getX() && p.getY() < max.getY())
             return deepContains(p);
-
         return false;
     }
-
     private boolean deepContains(Point p) {
         //log.warn(p.getX()+" "+p.getY()+" method: deepContains");
         boolean res = false;
@@ -85,10 +78,6 @@ public class Polygon {
                 res = !res;
             j = i;
         }
-
         return res;
     }
-
-
-
 }

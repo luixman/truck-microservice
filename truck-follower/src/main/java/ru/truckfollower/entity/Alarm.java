@@ -54,7 +54,7 @@ public class Alarm implements Serializable {
 
     @JoinColumn(name = "truck_id")
     @ManyToOne()
-    private Truck truck;
+    private Transport truck;
 
 
     @Override

@@ -1,9 +1,8 @@
-CREATE TABLE Company(
+CREATE TABLE company(
     id SERIAL PRIMARY KEY,
     full_name varchar,
     short_name varchar(30),
     inn bigint,
     phone_number varchar(20)
-
 );
 

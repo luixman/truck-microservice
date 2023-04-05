@@ -6,7 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.truckfollower.entity.ForbiddenZone;
-import ru.truckfollower.entity.Truck;
+import ru.truckfollower.entity.Transport;
 
 import java.time.Instant;
 
@@ -23,6 +23,6 @@ public class AlarmSendModel {
     Double y;
 
     ForbiddenZone forbiddenZone;
-    Truck truck;
+    Transport truck;
 
 }

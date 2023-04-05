@@ -17,4 +17,3 @@ alter table forbidden_zone
 create index forbidden_zone_polygon_idx
     on forbidden_zone using gist (polygon);
 
-

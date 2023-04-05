@@ -35,9 +35,7 @@ public class StartController {
         truckService.startMove();
         log.info("imitation trucks started, timeout:" + timeout);
         return ResponseEntity.ok("OK");
-
     }
-
     @GetMapping("stop")
     public ResponseEntity<String> stop() {
 

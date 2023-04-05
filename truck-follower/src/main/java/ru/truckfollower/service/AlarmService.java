@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.truckfollower.entity.Alarm;
 import ru.truckfollower.entity.ForbiddenZone;
-import ru.truckfollower.entity.Truck;
+import ru.truckfollower.entity.Transport;
 import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.AlarmSendModel;
 import ru.truckfollower.model.ForbiddenZoneModel;
@@ -67,7 +67,7 @@ public class AlarmService {
 
         // TODO: 14.11.2022 исправить это
         ForbiddenZone forbiddenZone = forbiddenZoneService.toEntity(forbiddenZoneModel).get();
-        Truck truck = truckService.rabbitModelToEntity(truckRabbitMessageModel).get();
+        Transport truck = truckService.rabbitModelToEntity(truckRabbitMessageModel).get();
 
         log.info(truck.getName() + " номер: " + truck.getCarNumber() + " Попал в запретную зону \"" + forbiddenZoneModel.getZoneName() + "\", координаты: " + truckRabbitMessageModel.getX() + " " + truckRabbitMessageModel.getY());
 

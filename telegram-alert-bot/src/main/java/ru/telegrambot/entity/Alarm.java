@@ -4,7 +4,7 @@ package ru.telegrambot.entity;
 
 
 import lombok.*;
-import org.postgis.Point;
+
 import javax.persistence.*;
 import java.time.Instant;
 
@@ -51,7 +51,7 @@ public class Alarm {
 
     @JoinColumn(name = "truck_id")
     @ManyToOne()
-    private Truck truck;
+    private Transport truck;
 
 
     @Override

@@ -7,12 +7,23 @@ import org.postgis.Point;
 import ru.truckfollower.service.polygon.Polygon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PolygonTest {
 
     private static Polygon polygon;
 
+
+    @Test
+    public void testConstructor() {
+        List<Point> polygon = Arrays.asList(new Point(0, 0), new Point(0, 1), new Point(1, 1), new Point(1, 0));
+        Polygon p = new Polygon(polygon);
+        assertTrue(p.getPolygon().equals(polygon));
+    }
 
     @BeforeAll
     public static void beforeAll() {
@@ -34,12 +45,32 @@ public class PolygonTest {
         Point p4 = new Point(4, 8.5);
         Point p5 = new Point(7.89999, 5.39999);
 
-        Assertions.assertTrue(polygon.contains(p1));
-        Assertions.assertFalse(polygon.contains(p2));
-        Assertions.assertFalse(polygon.contains(p3));
-        Assertions.assertFalse(polygon.contains(p4));
-        Assertions.assertTrue(polygon.contains(p5));
+        assertTrue(polygon.contains(p1));
+        assertFalse(polygon.contains(p2));
+        assertFalse(polygon.contains(p3));
+        assertFalse(polygon.contains(p4));
+        assertTrue(polygon.contains(p5));
+    }
 
+    @Test
+    public void testContainsPointInsidePolygon() {
+        List<Point> polygon = Arrays.asList(new Point(0, 0), new Point(0, 2), new Point(2, 2), new Point(2, 0));
+        Polygon p = new Polygon(polygon);
+        assertTrue(p.contains(new Point(1, 1)));
+    }
+
+    @Test
+    public void testContainsPointOutsidePolygon() {
+        List<Point> polygon = Arrays.asList(new Point(0, 0), new Point(0, 2), new Point(2, 2), new Point(2, 0));
+        Polygon p = new Polygon(polygon);
+        assertFalse(p.contains(new Point(3, 3)));
+    }
+
+    @Test
+    public void testContainsPointOnPolygonBoundary() {
+        List<Point> polygon = Arrays.asList(new Point(0, 0), new Point(0, 2), new Point(2, 2), new Point(2, 0));
+        Polygon p = new Polygon(polygon);
+        assertFalse(p.contains(new Point(1, 0)));
     }
 
 

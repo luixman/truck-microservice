@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.truckfollower.entity.Truck;
+import ru.truckfollower.entity.Transport;
 import ru.truckfollower.exception.EntityNotFoundException;
 import ru.truckfollower.model.TruckRabbitMessageModel;
 import ru.truckfollower.repo.TruckRepo;
@@ -19,7 +19,7 @@ public class TruckService {
 
     private final TruckRepo truckRepo;
     //мапа uniqId,truck
-    private Map<Long, Truck> truckMap;
+    private Map<Long, Transport> truckMap;
 
     @Autowired
     public TruckService( TruckRepo truckRepo) {
@@ -30,9 +30,9 @@ public class TruckService {
     @Scheduled(fixedDelayString = "${scheduler-time.service.truck-service}", timeUnit = TimeUnit.SECONDS)
     // TODO: 05.11.2022 добавить шедулер
     public void initialize() {
-        Map<Long, Truck> map = new HashMap<>();
+        Map<Long, Transport> map = new HashMap<>();
 
-        for (Truck t :
+        for (Transport t :
                 getAll()) {
             map.put(t.getUniqId(), t);
         }
@@ -42,21 +42,21 @@ public class TruckService {
     }
 
 
-    public Truck getTruckByUId(long uid) throws EntityNotFoundException {
-        Truck truck = truckMap.get(uid);
+    public Transport getTruckByUId(long uid) throws EntityNotFoundException {
+        Transport truck = truckMap.get(uid);
         if(Objects.isNull(truck))
             throw new EntityNotFoundException("Truck not found");
         return truck;
     }
 
-    public  Optional<Truck> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
+    public  Optional<Transport> rabbitModelToEntity(TruckRabbitMessageModel rabbitModel) {
 
-        Optional<Truck> truck;
+        Optional<Transport> truck;
         truck = Optional.of(truckRepo.findFirstByUniqId(rabbitModel.getUniqId()));
         return truck;
     }
 
-    public List<Truck> getAll() {
+    public List<Transport> getAll() {
         return truckRepo.findAll();
     }
 
