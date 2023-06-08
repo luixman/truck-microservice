@@ -22,7 +22,6 @@ public class ReceiveAlarmRabbitMessageService {
         this.telegramAlarmService = telegramAlarmService;
     }
 
-
     @RabbitListener(queues = "${rabbitmq.queue.name}")
     public void receiveMessage(AlarmSendModel a){
         log.info("New message: "+a.getId());

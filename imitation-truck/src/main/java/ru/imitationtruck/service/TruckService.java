@@ -45,24 +45,25 @@ public class TruckService {
         String[] files = {"truck1.txt", "truck2.txt", "truck3.txt"};
 
         List<List<Point>> list = new ArrayList<>();
-        for (int i = 0; i < files.length; i++) {
+        for (String file : files) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            InputStream is = classLoader.getResourceAsStream(files[i]);
+            InputStream is = classLoader.getResourceAsStream(file);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
             List<Point> l = new ArrayList();
             list.add(l);
+
             while (reader.ready()) {
                 String[] s = reader.readLine().split(" ");
                 l.add(new Point(Double.parseDouble(s[0]), Double.parseDouble(s[1])));
 
             }
         }
+
         truckListMap.put(new Transport(100001L, 0, 0), list.get(0));
         truckListMap.put(new Transport(100002L, 0, 0), list.get(1));
         truckListMap.put(new Transport(100003L, 0, 0), list.get(2));
-
     }
-
 
     @SneakyThrows
     public void startMove() {
@@ -97,6 +98,5 @@ public class TruckService {
         executorService.shutdownNow();
         isStarted = false;
     }
-
 
 }

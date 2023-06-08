@@ -15,6 +15,7 @@ import java.time.Instant;
 @ToString
 @Builder
 public class TelegramConnection {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

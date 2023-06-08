@@ -15,15 +15,20 @@ import java.time.Instant;
 @NoArgsConstructor
 public class AlarmSendModel {
     long id;
+
     @JsonDeserialize(using = DefaultInstantDeserializer.class)
     Instant time;
+
     boolean messageTimeWrong;
+
     boolean zoneLeave;
 
     Double x;
+
     Double y;
 
     ForbiddenZone forbiddenZone;
+
     Transport truck;
 
 }

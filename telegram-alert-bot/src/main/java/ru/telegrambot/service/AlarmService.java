@@ -25,14 +25,12 @@ public class AlarmService {
         this.alarmRepo = alarmRepo;
     }
 
-    //  private final TelegramAlarmService telegramAlarmService;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyyг. HH:mm:ss")
             .withZone(ZoneId.systemDefault());
 
-
     public Alarm getAlarmById(Long id) throws EntityNotFoundException {
-
         Optional<Alarm> a = alarmRepo.findById(id);
+
         if (a.isEmpty())
             throw new EntityNotFoundException("alarm not found by id= " + id);
         return a.get();

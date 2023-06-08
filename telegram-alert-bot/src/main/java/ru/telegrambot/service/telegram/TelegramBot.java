@@ -84,8 +84,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             chatConnections.put(connection.getChatId(), telegramConnectionService.toModel(connection));
         }
         this.chatConnections = chatConnections;
-
-
     }
 
     @Override
@@ -125,9 +123,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
             handleCommandMessage(message);
-
         }
-
 
         //если это связано с участником чата (кик, добавление пользователя)
         if (update.hasMyChatMember()) {
@@ -135,7 +131,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             handleMyChatMember(chatMemberUpdated);
         }
-
     }
 
     private void handleMyChatMember(ChatMemberUpdated chatMemberUpdated) {
@@ -184,7 +179,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 execute(SendMessage.builder().chatId(message.getChatId()).text("Неправильный ключ, попробуйте еще раз").build());
                 messageLog += ". Authorization failed: " + key;
             }
-
             log.info(messageLog);
 
         } catch (TelegramApiException e) {
@@ -233,9 +227,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
-
     }
-
 
     private void sendNoAuthMessage(Long chatId) {
         try {
@@ -246,7 +238,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
-
     }
 
     private void handleCommandMessage(Message message) {
@@ -265,10 +256,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else if(command.startsWith("/help")){
                 helpCommand(message);
             }
-
         }
-        log.info("Chat: " + message.getChat().getId() + ". Sent a command: " + message.getText());
 
+        log.info("Chat: " + message.getChat().getId() + ". Sent a command: " + message.getText());
     }
 
     private void helpCommand(Message message) {
@@ -288,7 +278,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void getTrucksInForbiddenZoneCommand(Message message) {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yy. HH:mm:ss")
                 .withZone(ZoneId.systemDefault());
 
@@ -304,20 +293,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                 Alarm a = alarms.get(i);
                 text.append(String.format("%2s. %-18s %s \n", i+1, formatter.format(a.getMessageTime()), "/get_alarm_" + a.getId()));
             }
-
         }
+
         try {
             execute(SendMessage.builder().chatId(message.getChatId())
                     .text(text.toString())
                     .replyToMessageId(message.getMessageId())
                     .build());
+
         } catch (TelegramApiException e) {
             log.error("Error send getTrucksInForbiddenZoneCommand message");
         }
     }
 
     private void getAlarmCommand(Message message) {
-
         long alarmId;
         Alarm a;
 
@@ -381,6 +370,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
         }
+
         return inlineKeyboardMarkup;
     }
 

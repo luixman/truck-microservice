@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Setter
 @ToString
 public class ForbiddenZone implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -26,10 +27,10 @@ public class ForbiddenZone implements Serializable {
     @Column(name="deactivated")
     private Boolean deactivated;
 
+
     @JsonIgnore
     @Column(name ="company_id")
     private Long companyId;
-
 
     @JsonIgnore
     @Column(name="polygon")

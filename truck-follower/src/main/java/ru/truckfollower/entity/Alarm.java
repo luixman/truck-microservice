@@ -28,11 +28,9 @@ public class Alarm implements Serializable {
     @Column(name = "message_time")
     private Instant messageTime;
 
-
     @JsonSerialize(using = InstantSerializer.class)
     @Column(name = "leave_time")
     private Instant leaveTime;
-
 
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
@@ -46,11 +44,9 @@ public class Alarm implements Serializable {
     @Column(name ="point_exit")
     private Point pointExit;
 
-
     @JoinColumn(name = "forbidden_zone_id")
     @ManyToOne
     private ForbiddenZone forbiddenZone;
-
 
     @JoinColumn(name = "truck_id")
     @ManyToOne()

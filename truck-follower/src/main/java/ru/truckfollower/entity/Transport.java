@@ -15,6 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ToString
 public class Transport implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -35,9 +36,7 @@ public class Transport implements Serializable {
     @Column(name = "other_information")
     private String otherInformation;
 
-
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-
 }

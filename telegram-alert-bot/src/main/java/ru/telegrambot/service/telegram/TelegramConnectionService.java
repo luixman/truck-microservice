@@ -51,8 +51,6 @@ public class TelegramConnectionService {
         return telegramConnection.get();
     }
 
-
-
     public TelegramConnection save(TelegramConnection telegramConnection) {
 
         if(telegramConnection.getActivatedCompanies()==null)
@@ -88,8 +86,7 @@ public class TelegramConnectionService {
                 .authorized(telegramConnectionModel.getAuthorized())
                 .build();
     }
-
-
+    
     public TelegramConnectionModel toModel(TelegramConnection connection) {
 
         Set<Long> activatedCompanies = new HashSet<>();

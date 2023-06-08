@@ -11,12 +11,10 @@ spring:
       password: guest
   datasource:
       #url: jdbc:postgresql://host.docker.internal:5432/truck_microservice
-      url: jdbc:postgresql://localhost:5432/truck_microservice
+      url: jdbc:postgresql://localhost:5433/truck_microservice
       username: postgres
       password: root
       driver-class-name: org.postgresql.Driver
-
-
 
 rabbitmq:
   receive:
@@ -33,7 +31,6 @@ rabbitmq:
       name: sendAlarmQueue
       durable: true
       exclusive: false
-
 
 scheduler-time:
   service:

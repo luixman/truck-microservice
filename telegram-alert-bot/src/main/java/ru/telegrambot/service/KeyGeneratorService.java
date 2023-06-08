@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
-// TODO: 22.11.2022 REFACTOR
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class KeyGeneratorService {
 
@@ -46,8 +48,10 @@ public class KeyGeneratorService {
     }
 
     public String getNewTelegramRandomKey() {
-        return generator.generatePassword(128, splCharRule, lowerCaseRule,
+        String key = generator.generatePassword(128, splCharRule, lowerCaseRule,
                 upperCaseRule, digitRule);
+        log.info(key);
+        return key;
     }
 
 

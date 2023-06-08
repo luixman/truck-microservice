@@ -10,4 +10,3 @@ spring:
     stream:
       username: guest
       password: guest
-

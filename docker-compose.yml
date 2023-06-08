@@ -21,7 +21,6 @@ services:
       - postgres:postgres # линкуем, тут можно сменить название линка
     restart: on-failure
 
-
   telegram-alert-bot:
     #image: telegram-alert-bot:latest
     container_name: telegram-alert-bot
@@ -33,7 +32,6 @@ services:
       - postgres
     links:
       - postgres:postgres
-
 
   postgres:
     image: postgis/postgis:14-3.3
@@ -58,9 +56,3 @@ services:
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-
-
-
-
-
-

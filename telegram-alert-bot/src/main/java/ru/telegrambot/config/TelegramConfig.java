@@ -12,7 +12,6 @@ import ru.telegrambot.service.telegram.TelegramBot;
 @Configuration
 public class TelegramConfig {
 
-
     @Bean
     TelegramBotsApi telegramBotsApi(@Autowired TelegramBot telegramBot) throws TelegramApiException {
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);

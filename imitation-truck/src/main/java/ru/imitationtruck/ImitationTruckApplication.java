@@ -12,9 +12,4 @@ public class ImitationTruckApplication {
 		SpringApplication.run(ImitationTruckApplication.class, args);
 
 	}
-
-
-
-
-
 }

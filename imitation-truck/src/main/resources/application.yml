@@ -6,7 +6,6 @@ spring:
       username: guest
       password: guest
 
-
 rabbitmq:
   exchange: imitationTrucks
   routingKey: myRoutingKey

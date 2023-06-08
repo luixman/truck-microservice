@@ -57,7 +57,6 @@ public class AlarmService {
         log.info("Alarm service has ben initialized or updated" + trucksInTheForbiddenZone.getClass().getName() + " size:" + trucksInTheForbiddenZone.size());
     }
 
-
     @Transient
     public synchronized Alarm alarmCreate(TruckRabbitMessageModel truckRabbitMessageModel, ForbiddenZoneModel forbiddenZoneModel) {//methodname: startTracking
 
@@ -79,7 +78,9 @@ public class AlarmService {
                 .messageTimeWrong(truckRabbitMessageModel.isTimeWrong())
                 .pointEntry(new org.springframework.data.geo.Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()))
                 .build();
+
         a = alarmRepo.save(a);
+
         trucksInTheForbiddenZone.put(truckRabbitMessageModel.getUniqId(), a);
 
         AlarmSendModel alarmSendModel = toModel(a);
@@ -89,13 +90,13 @@ public class AlarmService {
         return a;
     }
 
-
     @Transient
     public synchronized void handleAlarmTruck(TruckRabbitMessageModel truckRabbitMessageModel) {
         Alarm a = trucksInTheForbiddenZone.get(truckRabbitMessageModel.getUniqId());
 
         if (a == null)
             return;
+
         ForbiddenZoneModel forbiddenZoneModel = forbiddenZoneService.toModel(a.getForbiddenZone());
 
         Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());

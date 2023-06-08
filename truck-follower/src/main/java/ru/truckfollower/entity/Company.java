@@ -30,10 +30,5 @@ public class Company implements Serializable {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-    // TODO: 03.11.2022 '+7(495)775-55-30'  PATTERN
-
-
-
-
 
 }

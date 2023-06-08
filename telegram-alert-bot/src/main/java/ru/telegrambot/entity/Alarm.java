@@ -1,12 +1,21 @@
 package ru.telegrambot.entity;
 
 
-
-
-import lombok.*;
-
-import javax.persistence.*;
 import java.time.Instant;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,16 +41,13 @@ public class Alarm {
     @Column(name = "zone_leave", columnDefinition = "boolean default false")
     private Boolean zoneLeave;
 
-    @Column(name ="message_time_wrong", columnDefinition = "boolean default false")
+    @Column(name = "message_time_wrong", columnDefinition = "boolean default false")
     private Boolean messageTimeWrong;
 
-    @Column(name ="point_entry")
-
-    //private Point pointEntry;
+    @Column(name = "point_entry")
     org.springframework.data.geo.Point pointEntry;
 
-    @Column(name ="point_exit")
-    //private Point pointExit;
+    @Column(name = "point_exit")
     org.springframework.data.geo.Point pointExit;
 
 

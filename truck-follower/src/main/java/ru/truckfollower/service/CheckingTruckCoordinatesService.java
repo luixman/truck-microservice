@@ -80,7 +80,6 @@ public class CheckingTruckCoordinatesService {
             return;
         }
 
-        //log.info(truckRabbitMessageModel.getX()+" "+ truckRabbitMessageModel.getY()+" "+ truckRabbitMessageModel.getUniqId()+": "+ company.getFullName());
         for (ForbiddenZoneModel forbiddenZoneModel : companyList) {
             Polygon polygon = Polygon.geometryToPolygon(forbiddenZoneModel.getGeometry());
             boolean result = polygon.contains(new Point(truckRabbitMessageModel.getX(), truckRabbitMessageModel.getY()));

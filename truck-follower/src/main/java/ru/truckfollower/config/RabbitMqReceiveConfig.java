@@ -19,10 +19,13 @@ public class RabbitMqReceiveConfig {
 
     @Value("${rabbitmq.receive.queue.name}")
     private String queue;
+
     @Value("${rabbitmq.receive.exchange}")
     private String exchange;
+
     @Value("${rabbitmq.receive.routing-key}")
     private String routingKey;
+
     @Value("${rabbitmq.receive.queue.durable}")
     private boolean durable;
 

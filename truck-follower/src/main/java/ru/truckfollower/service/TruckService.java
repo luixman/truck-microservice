@@ -28,7 +28,6 @@ public class TruckService {
 
     @PostConstruct
     @Scheduled(fixedDelayString = "${scheduler-time.service.truck-service}", timeUnit = TimeUnit.SECONDS)
-    // TODO: 05.11.2022 добавить шедулер
     public void initialize() {
         Map<Long, Transport> map = new HashMap<>();
 
@@ -40,7 +39,6 @@ public class TruckService {
 
         log.info("Truck Service has ben initialized or updated. " + truckMap.getClass().getName() + "size: " + truckMap.size());
     }
-
 
     public Transport getTruckByUId(long uid) throws EntityNotFoundException {
         Transport truck = truckMap.get(uid);
@@ -59,7 +57,6 @@ public class TruckService {
     public List<Transport> getAll() {
         return truckRepo.findAll();
     }
-
 
 }
 

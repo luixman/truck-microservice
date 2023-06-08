@@ -1,14 +1,17 @@
 package ru.telegrambot.service.telegram;
 
 import com.google.common.util.concurrent.AtomicDouble;
+
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 import ru.telegrambot.entity.Alarm;
 import ru.telegrambot.model.AlarmSendModel;
 import ru.telegrambot.model.TelegramConnectionModel;
@@ -35,7 +38,6 @@ public class TelegramAlarmService {
 
     @SneakyThrows //для всех случаев, кроме TelegramApiException
     public void send(AlarmSendModel a) {
-
         sendNoZoneLeaveMessage(a);
     }
 

@@ -21,8 +21,6 @@ public class Transport implements Serializable {
     private double y;
 
     @JsonSerialize(using = InstantSerializer.class)
-   // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-   // @JsonFormat(pattern = "dd-MM-yyyy")
     private Instant instant;
 
     public Transport(long uid, double x, double y) {
@@ -30,6 +28,5 @@ public class Transport implements Serializable {
         this.x = x;
         this.y = y;
         instant = Instant.now(Clock.system(ZoneId.of("Europe/Moscow")));
-
     }
 }

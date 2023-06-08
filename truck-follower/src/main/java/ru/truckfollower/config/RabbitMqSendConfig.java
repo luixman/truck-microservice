@@ -18,12 +18,16 @@ public class RabbitMqSendConfig {
      */
     @Value("${rabbitmq.send.queue.name}")
     private String Queue;
+
     @Value("${rabbitmq.send.exchange}")
     private String exchange;
+
     @Value("${rabbitmq.send.routing-key}")
     private String routingKey;
+
     @Value("${rabbitmq.send.queue.durable}")
     private boolean durable;
+
     @Value("${rabbitmq.send.queue.exclusive}")
     private boolean exclusive;
 

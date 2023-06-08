@@ -11,6 +11,4 @@ public interface AlarmRepo extends JpaRepository<Alarm,Long> {
     List<Alarm> findAllByZoneLeave(Boolean zoneLeave);
     List<Alarm> findFirst30ByZoneLeave(Boolean zoneLeave);
 
-
-
 }

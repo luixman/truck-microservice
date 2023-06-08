@@ -26,14 +26,12 @@ public class TelegramAuthService {
         }
 
         return telegramConnection.getAuthorized();
-
-
     }
 
     @CachePut(value = "authService", key = "#chatId")
     public boolean authorizationAttempt(Long chatId, String authKey) {
-
         TelegramConnection telegramConnection;
+
         try {
             telegramConnection = telegramConnectionService.getByChatId(chatId);
         } catch (EntityNotFoundException e) {
@@ -50,7 +48,8 @@ public class TelegramAuthService {
             telegramConnection.setAuthorized(true);
             telegramConnectionService.save(telegramConnection);
             return true;
-        } else return false;
+        } else
+            return false;
     }
 
     @CacheEvict("authService")

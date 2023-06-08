@@ -34,7 +34,6 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue receiveQueue(){
-        //  return new Queue(queue,durable,exclusive,true);
         return new Queue(queue);
     }
 
